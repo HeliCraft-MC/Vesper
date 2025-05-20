@@ -10,5 +10,10 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxtjs/turnstile',
     '@nuxt/icon'
-  ]
+  ],
+  css: ['~/assets/css/fonts.css'],
+  image: {
+    provider: 'ipx',
+    dir: 'public'
+  }
 })
