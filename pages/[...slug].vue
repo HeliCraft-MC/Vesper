@@ -5,9 +5,28 @@ const path = '/' + (
         ? route.params.slug.join('/')
         : (route.params.slug ?? '')
 )
-const { data: page } = await useAsyncData(`page:${path}`, () =>
+const { data: page, error } = await useAsyncData(`page:${path}`, () =>
     queryCollection('pages').path(path).first()
 )
+
+if (!page.value) {
+  setResponseStatus(404, 'Not Found')       // :contentReference[oaicite:0]{index=0}
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'Страница не найдена'
+  })                                              // :contentReference[oaicite:1]{index=1}
+}
+
+// при каких-то неожиданных ошибках — 500
+if (error.value) {
+  setResponseStatus(500, 'Internal Error')
+  throw createError({
+    statusCode: 500,
+    statusMessage: 'Внутренняя ошибка сервера',
+    message: error.value.message
+  })
+}
+
 useSeoMeta({ title: page.value?.title ?? 'Страница' })
 </script>
 
@@ -26,7 +45,28 @@ useSeoMeta({ title: page.value?.title ?? 'Страница' })
       </h1>
 
       <ContentRenderer v-if="page" :value="page" />
-      <p v-else class="text-center text-gray-400">Страница не найдена — 404</p>
+      <template v-else>
+        <div class="flex-grow flex flex-col items-center justify-center space-y-6">
+          <h1
+              class="text-red-500 text-6xl md:text-8xl font-bold"
+              style="font-family:'Press Start 2P',system-ui"
+          >
+            404
+          </h1>
+          <p class="text-gray-400 text-xl md:text-2xl">
+            Упс! Такой страницы не существует.
+          </p>
+          <client-only>
+            <a
+                href="/"
+                class="inline-block px-8 py-4 bg-red-500 text-black font-mono uppercase rounded-md
+                   hover:bg-red-600 transition-colors duration-300"
+            >
+              Вернуться на главную
+            </a>
+          </client-only>
+        </div>
+      </template>
     </section>
   </main>
 </template>

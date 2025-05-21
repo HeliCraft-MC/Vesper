@@ -98,7 +98,7 @@
       <div
           v-if="showMobileMenu"
           class="absolute top-full left-0 w-full min-[1401px]:hidden
-               bg-black/80 backdrop-blur-sm"
+               bg-gradient-to-b from-transparent to-black/80 backdrop-blur-sm"
       >
         <ul class="flex flex-col px-6 py-4 space-y-4">
           <li>
