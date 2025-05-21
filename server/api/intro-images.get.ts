@@ -10,6 +10,6 @@ export default defineEventHandler(async (event) => {
     const res = files
         .filter(f => /\.(png|jpe?g|webp|gif)$/i.test(f))
         .map(f => `/introImg/${f}`)
-    console.log(res)
+    // console.log(res)
     return res
 })

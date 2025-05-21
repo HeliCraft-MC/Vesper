@@ -1,6 +1,6 @@
 <template>
   <div class="relative min-h-screen bg-black text-white flex flex-col">
-    <!-- Смена фона с плавным исчезанием -->
+    <!-- Фоновая карусель -->
     <transition name="fade" mode="out-in">
       <NuxtImg
           v-if="current"
@@ -25,13 +25,19 @@
     <main
         class="relative flex-grow flex flex-col items-center justify-center px-6 py-16 pt-24 md:pt-28"
     >
-      <h1 class="text-6xl font-extrabold text-red-500 mb-4 pr2p">HeliCraft</h1>
-      <p class="text-xl text-gray-300 mb-6">Ванильный сервер на версии 1.21.5</p>
+      <!-- ⚡ Респонсивный размер -->
+      <h1 class="pr2p font-extrabold text-red-500 mb-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
+        HeliCraft
+      </h1>
+
+      <p class="text-lg sm:text-xl text-gray-300 mb-6">
+        Ванильный сервер на версии 1.21.5
+      </p>
 
       <div
-          class="flex items-center bg-gray-800 bg-opacity-50 rounded-md px-5 py-3 mb-6 space-x-3"
+          class="flex items-center bg-gray-800/50 rounded-md px-5 py-3 mb-6 space-x-3"
       >
-        <p class="font-mono text-2xl">{{ serverAddress }}</p>
+        <p class="font-mono text-xl sm:text-2xl">{{ serverAddress }}</p>
         <button
             @click="copyAddress"
             class="flex items-center justify-center p-2 rounded-full transition hover:bg-gray-700 hover:text-red-400 focus:outline-none"
@@ -44,18 +50,15 @@
         </button>
       </div>
 
-      <p class="text-red-400 text-lg mb-8">
+      <p class="text-red-400 text-base sm:text-lg mb-8">
         Онлайн игроков: <span class="font-semibold">{{ online }}/20</span>
       </p>
 
       <div class="max-w-xl text-center text-gray-400 mb-8 px-4">
         <p>
-          HeliCraft — это уникальный ванильный Minecraft-сервер, созданный для
-          безопасной и дружелюбной атмосферы. Здесь вы можете исследовать мир,
-          строить сложные конструкции и общаться с командой игроков. Наш сервер
-          поддерживает версию 1.21.5, предлагает эксклюзивные эвенты и конкурсы
-          с призами. Сообщество активно развивается, а опытные модераторы всегда
-          готовы помочь новичкам.
+          HeliCraft — уникальный ванильный Minecraft-сервер. Вы исследуете мир,
+          строите, общаетесь и участвуете в эксклюзивных ивентах. Опытные
+          модераторы всегда готовы помочь новичкам.
         </p>
       </div>
     </main>
@@ -70,49 +73,33 @@ const online = ref(0)
 const copySuccess = ref(false)
 
 const { data: images } = await useFetch<string[]>('/api/intro-images')
-const current = ref<string>('')!
+const current = ref<string>('')
+
 let timerId: number
 
 onMounted(() => {
-  // Инициализируем онлайн
-  setTimeout(() => {
-    online.value = 3
-  }, 500)
+  // Имитация онлайна
+  setTimeout(() => (online.value = 3), 500)
 
-  // Показываем первый фон
-  // @ts-ignore
-  current.value = images.value[
-      // @ts-ignore
-      Math.floor(Math.random() * images.value.length)
-      ]
+  // Случайное фоновое изображение
+  current.value = images.value?.[Math.floor(Math.random() * images.value.length)] ?? ''
 
-  // Меняем фон каждые 5 с
+  // Смена фона каждые 5 с
   timerId = window.setInterval(() => {
-    // @ts-ignore
-    current.value = images.value[
-        // @ts-ignore
-        Math.floor(Math.random() * images.value.length)
-        ]
+    current.value = images.value?.[Math.floor(Math.random() * images.value.length)] ?? ''
   }, 5000)
 })
 
-onUnmounted(() => {
-  clearInterval(timerId)
-})
+onUnmounted(() => clearInterval(timerId))
 
 function copyAddress() {
   navigator.clipboard
       .writeText(serverAddress)
       .then(() => {
         copySuccess.value = true
-        console.log('Адрес сервера скопирован в буфер')
-        setTimeout(() => {
-          copySuccess.value = false
-        }, 2000)
+        setTimeout(() => (copySuccess.value = false), 2000)
       })
-      .catch(() => {
-        console.error('Не удалось скопировать адрес')
-      })
+      .catch(() => console.error('Не удалось скопировать адрес'))
 }
 </script>
 
