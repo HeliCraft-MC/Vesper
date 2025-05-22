@@ -68,6 +68,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 
+definePageMeta({ auth: false }) // публичная
+
+
 const serverAddress = 'mc.helicraft.ru'
 const online = ref(0)
 const copySuccess = ref(false)

@@ -10,6 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@sidebase/nuxt-auth": "^0.10.1",
     "better-sqlite3": "^11.10.0",
     "nuxt": "^3.17.3",
     "pathe": "^2.0.3",

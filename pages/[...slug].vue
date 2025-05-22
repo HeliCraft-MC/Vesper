@@ -24,6 +24,8 @@ if (error.value) {
 }
 
 useSeoMeta({ title: page.value?.title ?? 'Страница' })
+definePageMeta({ auth: false }) // публичная
+
 </script>
 
 <template>
