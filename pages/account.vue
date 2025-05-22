@@ -1,0 +1,30 @@
+<script setup lang="ts">
+import { useAuth } from '#imports'
+import PlayerCard from "~/components/account/PlayerCard.vue";
+import SkinCard from "~/components/account/SkinCard.vue";
+import StatsCard from "~/components/account/StatsCard.vue";
+import NationsCard from "~/components/account/NationsCard.vue";
+
+definePageMeta({ auth: true })
+
+const { signOut }: { signOut: () => void } = useAuth()
+</script>
+
+<template>
+  <main class="min-h-screen bg-black text-white flex flex-col items-center pt-24 md:pt-28 px-4 pb-20">
+    <section class="w-full max-w-3xl space-y-12">
+      <PlayerCard />
+      <SkinCard />
+      <StatsCard />
+      <NationsCard />
+
+      <!-- Выход -->
+      <div class="text-center">
+        <button @click="signOut"
+                class="bg-gray-700 hover:bg-gray-600 transition px-6 py-3 rounded-md">
+          Выйти из аккаунта
+        </button>
+      </div>
+    </section>
+  </main>
+</template>

@@ -19,66 +19,77 @@ export default defineNuxtConfig({
     '@sidebase/nuxt-auth'
   ],
   css: ['~/assets/css/fonts.css'],
-  content: {
-    markdown: {
-      highlight: {
-        theme: { default: 'github-light', dark: 'github-dark' },
-        langs: ['mcfunction', 'java', 'js', 'ts']     // ваши языки
-      },
-      remarkPlugins: {
-        'remark-emoji': { options: { emoticon: true } },
-        'remark-oembed': {}
-      }
-    }
-  },
   runtimeConfig: {
     public: {
       backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
+    },
+    turnstile: {
+      // This can be overridden at runtime via the NUXT_TURNSTILE_SECRET_KEY
+      // environment variable.
+      secretKey: '1x0000000000000000000000000000000AA',
+    },
+  },
+  nitro: {
+    routeRules: {
+      '/distant-api/**': { proxy: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/**` },
+      '/plan-api/**': { proxy: `${process.env.NUXT_PUBLIC_PLAN_API_URL || 'https://analytics.helicraft.ru'}/**` }
     }
+  },
+  turnstile: {
+    siteKey: '1x00000000000000000000AA',
+    addValidateEndpoint: true
   },
   auth: {
     isEnabled: true,
-    originEnvKey: 'NUXT_PUBLIC_BACKEND_URL', // берём origin из env
-    baseURL: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/auth`, // fallback
+    /* originEnvKey позволяет менять baseURL без ребилда */
+    originEnvKey: 'NUXT_PUBLIC_BACKEND_URL',                 // :contentReference[oaicite:6]{index=6}
+    /* fallback на случай отсутствия env (dev-режим) */
+    baseURL: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}`,
+    /* автоматическое обновление access-токена */
     sessionRefresh: { enableOnWindowFocus: true, enablePeriodically: 15 * 60_000 },
-    globalAppMiddleware: false,                // защищаем всё
+    /* включать/выключать глобальную защиту на всё приложение */
+    globalAppMiddleware: true,                              // точечная защита страниц
+
     provider: {
       type: 'local',
+      /* --- эндпоинты --- */
       endpoints: {
-        signIn:    { path: '/auth/login',   method: 'post' },
-        signOut:   { path: '/auth/logout',  method: 'post' },
-        getSession:{ path: '/auth/session', method: 'get'  },
-        // signUp не нужен — отключаем
+        signIn:     { path: '/auth/login',   method: 'post' },
+        signOut:    { path: '/auth/logout',  method: 'post' },
+        getSession: { path: '/auth/session', method: 'get'  }, // новый роут!
         signUp: false
       },
+      /* --- access token --- */
       token: {
-        signInResponseTokenPointer: '/accessToken', // backend → {accessToken,…}
+        signInResponseTokenPointer: '/accessToken',          // backend → {accessToken,…} :contentReference[oaicite:7]{index=7}
         type: 'Bearer',
         headerName: 'Authorization',
         cookieName: 'auth.token',
-        maxAgeInSeconds: 60 * 30, // 30 мин
+        maxAgeInSeconds: 60 * 30,
         sameSiteAttribute: 'lax'
       },
+      /* --- refresh token --- */
       refresh: {
         isEnabled: true,
         endpoint: { path: '/auth/refresh', method: 'post' },
         refreshOnlyToken: true,
         token: {
-          // refreshToken хранится httpOnly на сервере, nuxt-auth трогать не нужно
-          signInResponseRefreshTokenPointer: '/refreshToken',
+          signInResponseRefreshTokenPointer: '/uuid',
           refreshResponseTokenPointer: '/accessToken',
-          refreshRequestTokenPointer: '/uuid', // вы шлёте {uuid}
+          refreshRequestTokenPointer: '/uuid',               // nuxt-auth отправит {uuid}
           cookieName: 'auth.refresh',
-          maxAgeInSeconds: 60 * 60 * 24 * 7  // 7 дней
+          maxAgeInSeconds: 60 * 60 * 24 * 7
         }
       },
+      /* --- редиректы --- */
       pages: { login: '/login' },
+      /* --- типы данных сессии --- */
       session: {
         dataType: {
-          uuid:   'string',
+          uuid:     'string',
           nickname: 'string'
         }
       }
     }
-  }
+  },
 })

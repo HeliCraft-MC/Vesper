@@ -1,6 +1,14 @@
 ---
-title: "Правила сервера"
+title: "Правила сервера (TOS)"
 ---
+
+> English version: [Server Rules (TOS)](rules-en.md)
+
+> Русская версия: [Правила сервера (TOS)](rules.md)
+
+> В случае расхождения между русской и английской версиями, приоритет имеет русская версия.
+
+> In case of discrepancies between the Russian and English versions, the Russian version takes precedence.
 
 1. ## Общие положения
 

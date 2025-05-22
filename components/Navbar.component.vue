@@ -1,23 +1,22 @@
 <template>
   <!-- Фиксированная шапка -->
   <nav
-      class="fixed inset-x-0 w-screen top-0 z-50 flex items-center justify-center
+      class="fixed inset-x-0 top-0 z-50 w-screen flex items-center justify-center
            bg-gradient-to-b from-red-950/80 to-transparent backdrop-blur-sm"
   >
     <div class="flex items-center justify-between w-full max-w-[1700px] px-4 py-3">
       <!-- Логотип -->
       <NuxtLink
           to="/"
-          class="flex items-center space-x-2 text-red-400 text-2xl font-bold pr2p flex-shrink-0"
+          class="flex-shrink-0 flex items-center space-x-2 text-red-400 text-2xl font-bold pr2p"
       >
         <NuxtImg src="/logo_noback.png" alt="HeliCraft Logo" class="w-10 h-10" />
-        <!-- Скрываем надпись до 640 px -->
         <span class="hidden sm:inline truncate">HeliCraft</span>
       </NuxtLink>
 
       <!-- Десктоп-меню ≥1320 px -->
       <ul
-          class="hidden min-[1320px]:flex flex-1 justify-end gap-8 items-center overflow-hidden"
+          class="hidden min-[1320px]:flex flex-1 justify-end items-center gap-8 overflow-hidden"
       >
         <li>
           <NuxtLink
@@ -46,28 +45,28 @@
             <span class="truncate">Политика&nbsp;конфиденциальности</span>
           </NuxtLink>
         </li>
-        <li>
-          <template v-if="isLoggedIn">
-            <NuxtLink
-                to="/account"
-                class="flex items-center gap-2 font-bold pr2p text-gray-200 hover:text-red-400 transition"
-            >
-              <NuxtImg
-                  :src="`${domain}/distant-api/user/${nickname}/skin/head`"
-                  alt="Avatar"
-                  class="w-8 h-8 rounded-md"
-              />
-              <span class="truncate">{{ nickname }}</span>
-            </NuxtLink>
-          </template>
-          <template v-else>
-            <NuxtLink
-                to="/login"
-                class="font-bold pr2p text-gray-200 hover:text-red-400 transition"
-            >
-              Войти
-            </NuxtLink>
-          </template>
+
+        <!-- Авторизация -->
+        <li v-if="isLoggedIn">
+          <NuxtLink
+              to="/account"
+              class="flex items-center gap-2 font-bold pr2p text-gray-200 hover:text-red-400 transition"
+          >
+            <img
+                :src="`${origin}/distant-api/user/${nickname}/skin/head`"
+                alt="Avatar"
+                class="w-8 h-8 rounded-md"
+            />
+            <span class="truncate">{{ nickname }}</span>
+          </NuxtLink>
+        </li>
+        <li v-else>
+          <NuxtLink
+              to="/login"
+              class="font-bold pr2p text-gray-200 hover:text-red-400 transition"
+          >
+            Войти
+          </NuxtLink>
         </li>
       </ul>
 
@@ -125,30 +124,36 @@
               <span class="truncate">Политика&nbsp;конфиденциальности</span>
             </NuxtLink>
           </li>
-          <li>
-            <template v-if="isLoggedIn">
-              <NuxtLink
-                  to="/account"
-                  class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
-                  @click="closeMobileMenu"
-              >
-                <NuxtImg
-                    :src="`${domain}/distant-api/user/${nickname}/skin/head`"
-                    alt="Avatar"
-                    class="w-8 h-8 rounded-md"
-                />
-                <span class="truncate">{{ nickname }}</span>
-              </NuxtLink>
-            </template>
-            <template v-else>
-              <NuxtLink
-                  to="/login"
-                  class="pr2p text-gray-200 hover:text-red-400 transition"
-                  @click="closeMobileMenu"
-              >
-                Войти
-              </NuxtLink>
-            </template>
+          <li v-if="isLoggedIn">
+            <NuxtLink
+                to="/account"
+                class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
+                @click="closeMobileMenu"
+            >
+              <NuxtImg
+                  :src="`${origin}/distant-api/user/${nickname}/skin/head`"
+                  alt="Avatar"
+                  class="w-8 h-8 rounded-md"
+              />
+              <span class="truncate">{{ nickname }}</span>
+            </NuxtLink>
+          </li>
+          <li v-else>
+            <NuxtLink
+                to="/login"
+                class="pr2p text-gray-200 hover:text-red-400 transition"
+                @click="closeMobileMenu"
+            >
+              Войти
+            </NuxtLink>
+          </li>
+          <li v-if="isLoggedIn">
+            <button
+                class="pr2p text-left text-gray-200 hover:text-red-400 transition"
+                @click="handleLogout"
+            >
+              Выйти
+            </button>
           </li>
         </ul>
       </div>
@@ -157,21 +162,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { useAuth } from '#imports' /* nuxt-auth composable */
 
 const showMobileMenu = ref(false)
-const isLoggedIn     = ref(false)    // сюда можно прикрутить real-auth
-const nickname       = ref('ms0ur')
-const domain         = ref('')
+const { status, data, signOut } = useAuth()
+const isLoggedIn = computed(() => status.value === 'authenticated')
+const nickname   = computed(() => data.value?.nickname || '')
+const origin     = process.client ? window.location.origin : ''
 
-onMounted(() => {
-  domain.value = window.location.origin
-})
-
-function toggleMobileMenu() {
+function toggleMobileMenu () {
   showMobileMenu.value = !showMobileMenu.value
 }
-function closeMobileMenu() {
+function closeMobileMenu () {
   showMobileMenu.value = false
 }
+function handleLogout () {
+  signOut()              /* nuxt-auth signOut */
+  closeMobileMenu()
+}
+
+/* Закрываем бургер при навигации */
+watch(useRoute(), closeMobileMenu)
 </script>
