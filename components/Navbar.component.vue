@@ -62,7 +62,7 @@
         </li>
         <li v-else>
           <NuxtLink
-              to="/login"
+              to="/#"
               class="font-bold pr2p text-gray-200 hover:text-red-400 transition"
           >
             Войти
@@ -140,7 +140,7 @@
           </li>
           <li v-else>
             <NuxtLink
-                to="/login"
+                to="/#"
                 class="pr2p text-gray-200 hover:text-red-400 transition"
                 @click="closeMobileMenu"
             >

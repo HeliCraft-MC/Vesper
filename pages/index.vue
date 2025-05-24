@@ -51,7 +51,7 @@
       </div>
 
       <p class="text-red-400 text-base sm:text-lg mb-8">
-        Онлайн игроков: <span class="font-semibold">{{ online }}/20</span>
+        Онлайн игроков: <span class="font-semibold">{{ online }}/0 (Data not avaible)</span>
       </p>
 
       <div class="max-w-xl text-center text-gray-400 mb-8 px-4">
@@ -82,7 +82,7 @@ let timerId: number
 
 onMounted(() => {
   // Имитация онлайна
-  setTimeout(() => (online.value = 3), 500)
+  setTimeout(() => (online.value = -1), 500)
 
   // Случайное фоновое изображение
   current.value = images.value?.[Math.floor(Math.random() * images.value.length)] ?? ''
