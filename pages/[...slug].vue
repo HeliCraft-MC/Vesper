@@ -68,7 +68,7 @@ definePageMeta({ auth: false }) // публичная
   </main>
 </template>
 
-<style lang="postcss">
+<style lang="postcss" scoped>
 /* ————— фирменные заголовки ————— */
 h1 {
   font-family: "Press Start 2P", system-ui;

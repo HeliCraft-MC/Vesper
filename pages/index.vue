@@ -66,7 +66,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
 
 definePageMeta({ auth: false }) // публичная
 

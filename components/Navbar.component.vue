@@ -38,11 +38,11 @@
         </li>
         <li>
           <NuxtLink
-              to="/privacy"
+              to="/states"
               class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
           >
             <Icon name="ic:baseline-security" class="w-5 h-5" />
-            <span class="truncate">Политика&nbsp;конфиденциальности</span>
+            <span class="truncate">Государства</span>
           </NuxtLink>
         </li>
 
@@ -62,7 +62,7 @@
         </li>
         <li v-else>
           <NuxtLink
-              to="/#"
+              to="/login"
               class="font-bold pr2p text-gray-200 hover:text-red-400 transition"
           >
             Войти
@@ -116,12 +116,12 @@
           </li>
           <li>
             <NuxtLink
-                to="/privacy"
+                to="/states"
                 class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
                 @click="closeMobileMenu"
             >
               <Icon name="ic:baseline-security" class="w-5 h-5" />
-              <span class="truncate">Политика&nbsp;конфиденциальности</span>
+              <span class="truncate">Государства</span>
             </NuxtLink>
           </li>
           <li v-if="isLoggedIn">
@@ -140,7 +140,7 @@
           </li>
           <li v-else>
             <NuxtLink
-                to="/#"
+                to="/login"
                 class="pr2p text-gray-200 hover:text-red-400 transition"
                 @click="closeMobileMenu"
             >

@@ -1,5 +1,23 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+
+    app: {
+        head: {
+          htmlAttrs: {
+            lang: 'ru'
+          },
+          title: 'HeliCraft',
+          charset: 'utf-8',
+          viewport: 'width=device-width, initial-scale=1',
+          meta: [
+              { name: 'description', content: 'Helicraft - майнкрафт сервер' },
+          ],
+          link: [
+              { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+          ]
+        }
+    },
+
   compatibilityDate: '2025-05-15',
   devtools: {
     enabled: true,
@@ -16,12 +34,13 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxtjs/turnstile',
     '@nuxt/icon',
-    '@sidebase/nuxt-auth'
+    '@sidebase/nuxt-auth',
+    '@vueuse/nuxt',
   ],
   css: ['~/assets/css/fonts.css'],
   runtimeConfig: {
     public: {
-      backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'
+      backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'
     },
     turnstile: {
       // This can be overridden at runtime via the NUXT_TURNSTILE_SECRET_KEY
@@ -29,9 +48,13 @@ export default defineNuxtConfig({
       secretKey: '1x0000000000000000000000000000000AA',
     },
   },
+  icon: {
+    mode: 'css',
+    cssLayer: 'base'
+  },
   nitro: {
     routeRules: {
-      '/distant-api/**': { proxy: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/**` },
+      '/distant-api/**': { proxy: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}/**` },
       '/plan-api/**': { proxy: `${process.env.NUXT_PUBLIC_PLAN_API_URL || 'https://analytics.helicraft.ru'}/**` }
     }
   },
@@ -44,7 +67,7 @@ export default defineNuxtConfig({
     /* originEnvKey позволяет менять baseURL без ребилда */
     originEnvKey: 'NUXT_PUBLIC_BACKEND_URL',                 // :contentReference[oaicite:6]{index=6}
     /* fallback на случай отсутствия env (dev-режим) */
-    baseURL: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}`,
+    baseURL: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}`,
     /* автоматическое обновление access-токена */
     sessionRefresh: { enableOnWindowFocus: true, enablePeriodically: 15 * 60_000 },
     /* включать/выключать глобальную защиту на всё приложение */
