@@ -1,57 +1,143 @@
 <!-- pages/states/create.vue -->
 <script setup lang="ts">
+import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import BannerEditorModal from '@/components/BannerEditorModal.vue'
-import type { Pattern } from '@/components/BannerEditorModal.vue'
+
+// Определяем тип для v-model, так как Pattern может быть не экспортирован глобально
+interface BannerLayer {
+  id: string;
+  color: string;
+}
 
 /* —— форма —— */
 const form = ref({
-  name:'', description:'', color:'#ff0000',
-  govForm:'monarchy', hasElections:false,
-  telegramLink:'', allowDual:false, freeEntry:true, freeEntryDesc:''
+  name:'',
+  description:'',
+  color:'#ff0000',
+  govForm:'monarchy',
+  hasElections:false,
+  telegramLink:'',
+  // FIX: Имя поля приведено в соответствие с тем, что ожидает бэкенд
+  allowDualCitezenship:false,
+  freeEntry:true,
+  freeEntryDesc:''
 })
 const router   = useRouter()
 const loading  = ref(false)
 const errorMsg = ref('')
+
 /* —— флаг: upload vs editor —— */
-const mode     = ref<'upload'|'editor'>('editor')
+const mode     = ref<'editor'|'upload'>('editor')
 const file     = ref<File|null>(null)
-const banner   = ref<Pattern[]>([])
-const preview  = ref<string>('')    // data-url
+const banner   = ref<BannerLayer[]>([])
+const preview  = ref<string>('')    // data-url для превью
 const editor   = ref(false)
 
-/* авто-превью при загрузке файла */
-watch(file, file=>{
-  if (!file) return preview.value=''
-  const url = URL.createObjectURL(file)
-  const img = new Image()
-  img.onload = () =>{
-    const ratio = img.height / img.width
-    if (ratio < 1.6 || ratio > 2.4){
-      errorMsg.value='Флаг должен быть вертикальным (~1:2)'
-      file.value = null
-      preview.value=''
-    } else preview.value = url
-  }
-  img.src = url
-})
-
-async function handleSubmit(){
-  errorMsg.value=''
-  /* — валидация флага — */
-  if (mode.value==='upload' && !file.value)
-    return errorMsg.value='Загрузите PNG файла флага'
-  if (mode.value==='editor' && !banner.value.length)
-    return errorMsg.value='Создайте флаг в редакторе'
-  loading.value=true
+/**
+ * Вспомогательная функция для конвертации dataURL в объект File.
+ * @param dataUrl - Строка в формате data:image/png;base64,...
+ * @param filename - Имя будущего файла.
+ * @returns {File | null}
+ */
+function dataURLtoFile(dataUrl: string, filename: string): File | null {
   try {
-    const body = new FormData()
-    Object.entries(form.value).forEach(([k,v])=>body.append(k, String(v)))
-    if (mode.value==='upload') body.append('file', file.value!)
-    else body.append('bannerJson', JSON.stringify(banner.value))
-    const { uuid } = await $fetch('/distant-api/state/create', {method:'POST', body})
-    await router.push(`/states/${uuid}`)
-  } catch(e:any){ errorMsg.value = e?.data?.statusMessageRu || e.message }
-  finally{ loading.value=false }
+    const arr = dataUrl.split(',')
+    if (!arr[0] || !arr[1]) return null;
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    if (!mimeMatch) return null;
+
+    const mime = mimeMatch[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, {type:mime});
+  } catch (e) {
+    console.error("Error converting dataURL to File:", e);
+    return null;
+  }
+}
+
+/* авто-превью при загрузке файла */
+watch(file, newFile => {
+  if (!newFile) {
+    preview.value = '';
+    return;
+  }
+
+  const url = URL.createObjectURL(newFile);
+
+  if (newFile.name === 'flag-from-editor.png') {
+    preview.value = url;
+    return;
+  }
+
+  const img = new Image();
+  img.onload = () => {
+    const ratio = img.height / img.width;
+    if (ratio < 1.6 || ratio > 2.4) {
+      errorMsg.value = 'Флаг должен быть вертикальным (соотношение сторон ~2:1)';
+      file.value = null;
+      preview.value = '';
+    } else {
+      errorMsg.value = '';
+      preview.value = url;
+    }
+    URL.revokeObjectURL(url);
+  };
+  img.onerror = () => {
+    errorMsg.value = 'Не удалось прочитать файл изображения.';
+    file.value = null;
+    preview.value = '';
+    URL.revokeObjectURL(url);
+  }
+  img.src = url;
+});
+
+
+/**
+ * Обработчик закрытия редактора флагов.
+ */
+function handleEditorClose(payload?: { dataUrl?: string }) {
+  editor.value = false;
+  if (payload?.dataUrl) {
+    preview.value = payload.dataUrl;
+    const generatedFile = dataURLtoFile(payload.dataUrl, 'flag-from-editor.png');
+    if (generatedFile) {
+      file.value = generatedFile;
+    } else {
+      errorMsg.value = "Ошибка создания файла из редактора."
+    }
+  }
+}
+
+async function handleSubmit() {
+  errorMsg.value = '';
+
+  if (!file.value) {
+    return errorMsg.value = mode.value === 'upload'
+        ? 'Загрузите PNG файл флага'
+        : 'Создайте флаг в редакторе';
+  }
+
+  loading.value = true;
+  try {
+    const body = new FormData();
+    Object.entries(form.value).forEach(([k, v]) => body.append(k, String(v)));
+
+    // FIX: Отправляем файл под именем 'flag', как того требует бэкенд
+    body.append('flag', file.value);
+
+    const { uuid } = await $fetch('/distant-api/state/create', { method: 'POST', body });
+    await router.push(`/states/${uuid}`);
+  } catch (e: any) {
+    errorMsg.value = e?.data?.statusMessageRu || e.message || 'Произошла неизвестная ошибка';
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 
@@ -85,16 +171,18 @@ async function handleSubmit(){
         <label class="flex items-center gap-2">
           <input type="checkbox" v-model="form.hasElections"/> Есть выборы
         </label>
+        <!-- FIX: v-model привязан к новому имени поля -->
         <label class="flex items-center gap-2">
-          <input type="checkbox" v-model="form.allowDual"/> Двойное гражданство
+          <input type="checkbox" v-model="form.allowDualCitezenship"/> Двойное гражданство
         </label>
         <label class="flex items-center gap-2">
           <input type="checkbox" v-model="form.freeEntry"/> Свободный вход
         </label>
       </div>
 
-      <input v-if="form.freeEntry"
-             v-model="form.freeEntryDesc" placeholder="Условия свободного входа"
+      <!-- FIX: Поле теперь отображается, когда свободный вход ОТКЛЮЧЕН -->
+      <input v-if="!form.freeEntry"
+             v-model="form.freeEntryDesc" placeholder="Условия получения гражданства (визы)"
              class="w-full bg-gray-800/70 px-4 py-3 rounded outline-none"/>
 
       <input v-model="form.telegramLink" placeholder="Ссылка на Telegram"
@@ -121,12 +209,12 @@ async function handleSubmit(){
 
         <!-- upload -->
         <input v-if="mode==='upload'" type="file" accept=".png"
-               @change="file=$event.target.files?.[0] ?? null"
+               @change="file=($event.target as HTMLInputElement).files?.[0] ?? null"
                class="file:mr-4 file:bg-red-500 file:text-black file:px-3
                       file:py-2 file:rounded file:border-0"/>
 
         <!-- превью -->
-        <img v-if="preview" :src="preview" class="w-24 h-40 rounded mt-2"/>
+        <img v-if="preview" :src="preview" class="w-24 h-40 rounded mt-2 object-cover border border-gray-700"/>
       </div>
 
       <p class="text-gray-500 text-xs">
@@ -141,9 +229,6 @@ async function handleSubmit(){
       <p v-if="errorMsg" class="text-red-400 text-center">{{ errorMsg }}</p>
     </form>
 
-    <!-- модал редактора -->
-    <BannerEditorModal v-model="banner" :open="editor"
-                       @close="editor=false; preview =
-                          $refs.canvas?.toDataURL('image/png')"/>
+    <BannerEditorModal v-model="banner" :open="editor" @close="handleEditorClose"/>
   </main>
 </template>
