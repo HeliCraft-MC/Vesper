@@ -58,7 +58,6 @@ const colorSel = ref(palette[0])
 const previewCanvasRef = ref<HTMLCanvasElement | null>(null)
 const sprite = new Image()
 let isSpriteLoaded = false
-// Временный холст теперь тоже должен быть в высоком разрешении
 let tempCanvas: HTMLCanvasElement | null = null;
 if (typeof window !== 'undefined') {
   tempCanvas = document.createElement('canvas');
@@ -183,6 +182,7 @@ function drawAll() {
 
 function selectLayer(index: number) {
   if (selectedIndex.value === index) {
+    // @ts-ignore
     selectedIndex.value = null;
   } else {
     selectedIndex.value = index;
@@ -374,6 +374,7 @@ onMounted(() => {
           <!-- Футер -->
           <footer class="flex gap-4 p-5 border-t border-gray-700/50">
             <button @click="clearAllLayers" class="flex-1 bg-gray-700 py-3 rounded-lg font-bold hover:bg-gray-600 transition-colors">Сбросить</button>
+            <button @click="$emit('close')" class="flex-1 bg-gray-600 py-3 rounded-lg font-bold hover:bg-gray-500 transition-colors">Отмена</button>
             <button @click="closeAndConfirm" class="flex-1 bg-red-600 py-3 rounded-lg font-bold text-white hover:bg-red-700 transition-colors">Готово</button>
           </footer>
         </div>

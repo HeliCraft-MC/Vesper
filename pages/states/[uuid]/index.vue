@@ -2,18 +2,18 @@
 <script setup lang="ts">
 definePageMeta({ auth: false });
 
-import ConfirmationModal from '@/components/ui/ConfirmationModal.vue';
-import DiplomaticActionModal from '@/components/states/DiplomaticActionModal.vue';
+import ConfirmationModal from '~/components/ui/ConfirmationModal.vue';
+import DiplomaticActionModal from '~/components/states/DiplomaticActionModal.vue';
 
 // Card components
-import StateOrderCard from '@/components/states/StateOrderCard.vue';
-import StateWarrantCard from '@/components/states/StateWarrantCard.vue';
-import HistoryEventCard from '@/components/history/HistoryEventCard.vue';
+import StateOrderCard from '~/components/states/StateOrderCard.vue';
+import StateWarrantCard from '~/components/states/StateWarrantCard.vue';
+import HistoryEventCard from '~/components/history/HistoryEventCard.vue';
 
 
-import { RolesInState, StateStatus, GovernmentForm } from '@/types/state.types';
-import type { IState, IStateOrder, IStateWarrant } from '@/types/state.types';
-import type { IHistoryEvent } from '@/types/history.types';
+import { RolesInState, StateStatus, GovernmentForm } from '~/types/state.types';
+import type { IState, IStateOrder, IStateWarrant } from '~/types/state.types';
+import type { IHistoryEvent } from '~/types/history.types';
 
 const route = useRoute();
 const router = useRouter();
@@ -179,7 +179,7 @@ async function fetchUserPermissions() {
   if (!userUuid.value) return;
   try {
     const [roleData, adminData, diplomatData] = await Promise.all([
-      $fetch<{ role: RolesInState }>(`/distant-api/state/${uuid}/member/${userUuid.value}`).catch(() => ({ role: RolesInState.APPLICANT })),
+      $fetch<{ role: RolesInState }>(`/distant-api/state/${uuid}/member/${userUuid.value}`).catch(() => ({ role: RolesInState.NONE })),
       $fetch<boolean>(`/distant-api/user/${userUuid.value}/isAdmin`).catch(() => false),
       $fetch<{ state_uuid: string, isDiplomaticActionsAllowed: boolean }[]>(`/distant-api/user/${userUuid.value}/isDiplomaticActionsAllowedForPlayer`).catch(() => [])
     ]);
@@ -226,14 +226,14 @@ function watchDom() {
 }
 
 async function fetchOrders() {
-  // const r = await $fetch('/distant-api/order/list',{ query:{stateUuid:uuid,startAt:ordersOffset,limit:batch}}).catch(()=>[])
-  // orders.value.push(...r)
-  // ordersOffset += batch
+   const r = await $fetch('/distant-api/order/list',{ query:{stateUuid:uuid,startAt:ordersOffset,limit:batch}}).catch(()=>[])
+   orders.value.push(...r)
+   ordersOffset += batch
 }
 async function fetchWarrants() {
-  // const r = await $fetch('/distant-api/warrant/list',{ query:{stateUuid:uuid,startAt:warrantsOffset,limit:batch}}).catch(()=>[])
-  // warrants.value.push(...r)
-  // warrantsOffset+=batch
+   const r = await $fetch('/distant-api/warrant/list',{ query:{stateUuid:uuid,startAt:warrantsOffset,limit:batch}}).catch(()=>[])
+   warrants.value.push(...r)
+   warrantsOffset+=batch
 }
 async function fetchEvents() {
   const r = await $fetch<IHistoryEvent[]>('/distant-api/history/list', { query: { stateUuid: uuid, startAt: eventsOffset, limit: batch } }).catch(() => []);
@@ -398,27 +398,27 @@ async function loadMore() {
         <div class="bg-gray-800/50 rounded-lg p-4 flex flex-wrap gap-4 items-center">
           <h3 class="text-lg font-bold text-gray-300 mr-4 whitespace-nowrap">Панель управления</h3>
           <div class="flex flex-wrap gap-3 items-center w-full">
-            <!-- Ruler -->
             <button v-if="isRuler && canTakeAction" @click="denonceState" class="btn-action-danger">Распустить государство</button>
 
-            <!-- High Rank -->
-            <button v-if="isHighRank && canTakeAction" class="btn-action-primary">Панель управления</button>
+            <NuxtLink :to="uuid + '/panel'" v-if="isHighRank && canTakeAction" class="">
+              <button class="btn-action-primary">Панель управления</button>
+            </NuxtLink>
 
-            <!-- Citizen -->
             <template v-if="isCitizen && canTakeAction">
               <button @click="leaveState" class="btn-action-danger">Выйти из государства</button>
               <button class="btn-action-secondary" disabled>Панель государства</button>
             </template>
 
-            <!-- Applicant (not a member yet) -->
-            <div v-if="userRole === 'applicant' && !isHighRank && canTakeAction" class="w-full">
-              <div v-if="hasApplied" class="bg-blue-900/50 text-blue-300 text-sm font-semibold p-3 rounded-lg text-center">
+            <div v-if="userRole === 'applicant' && canTakeAction" class="w-full">
+              <div class="bg-blue-900/50 text-blue-300 text-sm font-semibold p-3 rounded-lg text-center">
                 Ваша заявка на вступление отправлена и ожидает рассмотрения.
               </div>
-              <button v-else @click="applyToState" class="btn-action-success w-full md:w-auto">Подать заявку на вступление</button>
             </div>
 
-            <!-- Diplomat of another state -->
+            <button v-else-if="userRole === 'none' && canTakeAction" @click="applyToState" class="btn-action-success w-full md:w-auto">
+              Подать заявку на вступление
+            </button>
+
             <template v-if="canManageRelations">
               <button @click="showDiplomacyModal = true" class="btn-action-primary">Управлять отношениями</button>
               <button class="btn-action-secondary" disabled>Управлять войнами</button>

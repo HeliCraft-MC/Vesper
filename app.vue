@@ -1,6 +1,8 @@
 <template>
   <NavbarComponent />
-  <NuxtPage />
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
   <FooterComponent />
 </template>
 <script setup lang="ts">
