@@ -433,14 +433,14 @@ async function loadMore() {
         <div class="space-y-4">
           <h2 class="font-bold pr2p text-xl pb-2 border-b-2" :style="{ color: 'var(--accent)', borderColor: 'var(--accent-bg)' }">Указы</h2>
           <div v-if="!orders.length" class="text-gray-500 text-center py-8">Указов пока нет</div>
-          <StateOrderCard v-for="o in orders" :key="o.uuid" :order="o"/>
+          <StateOrderCard v-for="o in orders" :key="o.uuid" :order="o" :color="accent"/>
         </div>
 
         <!-- Warrants -->
         <div class="space-y-4">
           <h2 class="font-bold pr2p text-xl pb-2 border-b-2" :style="{ color: 'var(--accent)', borderColor: 'var(--accent-bg)' }">Ордеры</h2>
           <div v-if="!warrants.length" class="text-gray-500 text-center py-8">Активных ордеров нет</div>
-          <StateWarrantCard v-for="w in warrants" :key="w.uuid" :warrant="w"/>
+          <StateWarrantCard v-for="w in warrants" :key="w.uuid" :warrant="w" :color="accent"/>
         </div>
 
         <!-- History -->

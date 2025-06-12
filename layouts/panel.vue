@@ -71,7 +71,7 @@
               <Icon name="material-symbols:groups-outline-rounded" />
               <span>Участники</span>
             </NuxtLink>
-            <NuxtLink v-if="canViewOfficerMenu" :to="`/states/${uuid}/panel/orders`" class="panel-link" active-class="panel-link-active">
+            <NuxtLink v-if="canViewOfficerMenu" :to="`/states/${uuid}/panel/decrees`" class="panel-link" active-class="panel-link-active">
               <Icon name="material-symbols:gavel-rounded" />
               <span>Указы и ордеры</span>
             </NuxtLink>
