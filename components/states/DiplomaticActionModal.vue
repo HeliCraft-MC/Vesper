@@ -192,50 +192,76 @@ async function fetchManagingStatesDetails() {
 }
 
 async function fetchRelationDetails() {
-  if (!selectedManagingStateUuid.value) return;
+  if (!selectedManagingStateUuid.value) return
 
-  isLoadingDetails.value = true;
-  detailsError.value = null;
-  pendingRequest.value = null;
+  isLoadingDetails.value = true
+  detailsError.value = null
+  pendingRequest.value = null
 
   try {
-    const stateA = [props.stateUuid, selectedManagingStateUuid.value].sort()[0];
-    const stateB = [props.stateUuid, selectedManagingStateUuid.value].sort()[1];
+    const stateA = [props.stateUuid, selectedManagingStateUuid.value].sort()[0]
+    const stateB = [props.stateUuid, selectedManagingStateUuid.value].sort()[1]
 
-    // 1) Получаем либо объект { kind }, либо примитивную строку
-    const raw = await $fetch<{ kind: RelationKind } | RelationKind | null>(
-        `/distant-api/relations/get?stateUuidA=${stateA}&stateUuidB=${stateB}`
-    ).catch(() => null);
+    /* ------------------------------------------------------------------
+     * 1. Получаем данные о существующих отношениях.
+     *    Используем responseType: 'text' и parseResponse, чтобы
+     *    корректно обрабатывать пустое тело ответа ('' → null).
+     * ---------------------------------------------------------------- */
+    const raw = await $fetch<
+        | { kind: RelationKind }
+        | RelationKind
+        | null
+        | string
+    >(`/distant-api/relations/get`, {
+      query: { stateUuidA: stateA, stateUuidB: stateB },
+      responseType: 'text',
+      /* Если тело пустое → вернём null, иначе попробуем JSON.parse,
+         а при ошибке парсинга вернём исходную строку. */
+      parseResponse: txt => {
+        if (!txt) return null
+        try {
+          return JSON.parse(txt)
+        } catch {
+          return txt
+        }
+      },
+    }).catch(() => null)
 
-    // 2) Определяем результат
-    let kind: RelationKind;
-    if (raw === null) {
-      kind = RelationKind.NEUTRAL;
+    /* ------------------------------------------------------------------
+     * 2. Определяем итоговый тип отношений.
+     * ---------------------------------------------------------------- */
+    let kind: RelationKind
+    if (raw == null || raw === '') {
+      kind = RelationKind.NEUTRAL
     } else if (typeof raw === 'string') {
-      kind = raw as RelationKind;
+      kind = raw as RelationKind
     } else {
-      kind = raw.kind ?? RelationKind.NEUTRAL;
+      kind = (raw as any).kind ?? RelationKind.NEUTRAL
     }
 
-    currentRelation.value = kind;
-    newRelationSelection.value = kind;
+    currentRelation.value = kind
+    newRelationSelection.value = kind
 
-    // остальной код без изменений…
+    /* ------------------------------------------------------------------
+     * 3. Получаем незавершённые запросы (если есть).
+     * ---------------------------------------------------------------- */
     const requestsResponse = await $fetch<IStateRelationRequest[]>(
-        `/distant-api/state/${selectedManagingStateUuid.value}/relation-requests`
-    ).catch(() => []);
+        `/distant-api/state/${selectedManagingStateUuid.value}/relation-requests`,
+    ).catch(() => [])
 
-    pendingRequest.value = requestsResponse.find(req =>
-        req.state_a_uuid === stateA &&
-        req.state_b_uuid === stateB &&
-        req.status === 'pending'
-    ) ?? null;
-
+    pendingRequest.value =
+        requestsResponse.find(
+            req =>
+                req.state_a_uuid === stateA &&
+                req.state_b_uuid === stateB &&
+                req.status === 'pending',
+        ) ?? null
   } catch (err: any) {
-    detailsError.value = err.data?.message || "Не удалось загрузить информацию об отношениях.";
-    console.error(err);
+    detailsError.value =
+        err?.data?.message || 'Не удалось загрузить информацию об отношениях.'
+    console.error(err)
   } finally {
-    isLoadingDetails.value = false;
+    isLoadingDetails.value = false
   }
 }
 
