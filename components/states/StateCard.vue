@@ -44,23 +44,23 @@
           <div class="grid grid-cols-1 gap-x-6 gap-y-4 text-sm text-slate-200 sm:grid-cols-2">
             <!-- Каждая характеристика теперь в 2 строки для читаемости -->
             <div class="flex items-start gap-2">
-              <Icon name="material-symbols:account-circle-full" class="h-5 w-5 flex-shrink-0 text-slate-400 mt-0.5" />
+              <Icon name="solar:crown-minimalistic-bold-duotone" class="h-5 w-5 flex-shrink-0 text-slate-400 mt-0.5" />
               <div><span class="text-slate-400">Правитель:</span><br>{{ ruler }}</div>
             </div>
             <div class="flex items-start gap-2">
-              <Icon name="material-symbols:groups-rounded" class="h-5 w-5 flex-shrink-0 text-slate-400 mt-0.5" />
+              <Icon name="solar:users-group-two-rounded-bold-duotone" class="h-5 w-5 flex-shrink-0 text-slate-400 mt-0.5" />
               <div><span class="text-slate-400">Участники:</span><br>{{ props.members }}</div>
             </div>
             <div class="flex items-start gap-2">
-              <Icon name="material-symbols:how-to-vote-rounded" class="h-5 w-5 flex-shrink-0 text-slate-400 mt-0.5" />
+              <Icon name="solar:revote-bold-duotone" class="h-5 w-5 flex-shrink-0 text-slate-400 mt-0.5" />
               <div><span class="text-slate-400">Выборы:</span><br>{{ state.has_elections ? 'Проводятся' : 'Отсутствуют' }}</div>
             </div>
             <div class="flex items-start gap-2">
-              <Icon name="material-symbols:badge-outline" class="h-5 w-5 flex-shrink-0 text-slate-400 mt-0.5" />
+              <Icon name="solar:user-id-bold-duotone" class="h-5 w-5 flex-shrink-0 text-slate-400 mt-0.5" />
               <div><span class="text-slate-400">Двойное гражданство:</span><br>{{ state.allow_dual_citizenship ? 'Разрешено' : 'Запрещено' }}</div>
             </div>
             <div class="flex items-start gap-2">
-              <Icon name="material-symbols:door-open-outline" class="h-5 w-5 flex-shrink-0 text-slate-400 mt-0.5" />
+              <Icon name="solar:info-circle-bold-duotone" class="h-5 w-5 flex-shrink-0 text-slate-400 mt-0.5" />
               <div><span class="text-slate-400">Свободный вход:</span><br>{{ state.free_entry ? 'Разрешен' : 'Ограничен' }}</div>
             </div>
           </div>
@@ -75,7 +75,7 @@
               <span>{{ stateStatusTranslations[state.status] || state.status }}</span>
             </div>
             <div class="mt-1 flex items-center gap-1.5">
-              <Icon name="material-symbols:calendar-today-outline-rounded" class="h-4 w-4" />
+              <Icon name="solar:calendar-bold-duotone" class="h-4 w-4" />
               <span>Основано: {{ new Date(props.state.created).toLocaleDateString() }}</span>
             </div>
           </div>
@@ -91,7 +91,7 @@
                 class="text-slate-400 transition-colors hover:text-white"
                 aria-label="Карта государства"
             >
-              <Icon name="material-symbols:map-outline-rounded" class="h-6 w-6" />
+              <Icon name="solar:map-bold-duotone" class="h-6 w-6" />
             </a>
             <a
                 v-if="state.telegram_link"
@@ -102,7 +102,7 @@
                 class="text-slate-400 transition-colors hover:text-white"
                 aria-label="Чат в Telegram"
             >
-              <Icon name="simple-icons:telegram" class="h-5 w-5" />
+              <Icon name="solar:plain-bold-duotone" class="h-5 w-5" />
             </a>
           </div>
         </footer>
@@ -179,10 +179,10 @@ const stateStatusTranslations: Record<StateStatus, string> = {
 };
 
 const statusInfo: Record<StateStatus, { icon: string; color: string }> = {
-  'pending': { icon: 'material-symbols:pending-actions-rounded', color: 'text-yellow-400' },
-  'active': { icon: 'material-symbols:check-circle-outline-rounded', color: 'text-green-400' },
-  'rejected': { icon: 'material-symbols:cancel-outline-rounded', color: 'text-red-500' },
-  'merged': { icon: 'material-symbols:merge-rounded', color: 'text-blue-400' },
-  'dissolved': { icon: 'material-symbols:delete-forever-outline-rounded', color: 'text-slate-500' },
+  'pending': { icon: 'solar:sort-by-time-bold-duotone', color: 'text-yellow-400' },
+  'active': { icon: 'solar:check-circle-bold-duotone', color: 'text-green-400' },
+  'rejected': { icon: 'solar:bill-cross-bold-duotone', color: 'text-red-500' },
+  'merged': { icon: 'solar:circle-bottom-up-bold-duotone', color: 'text-blue-400' },
+  'dissolved': { icon: 'solar:archive-down-minimlistic-bold-duotone', color: 'text-slate-500' },
 }
 </script>

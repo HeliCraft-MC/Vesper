@@ -122,10 +122,6 @@
               <Icon name="material-symbols:handshake-outline-rounded" />
               <span>Дипломатия</span>
             </NuxtLink>
-            <NuxtLink v-if="canViewAll" :to="`/states/` + uuid + `/panel/settings`" class="panel-link" active-class="panel-link-active">
-              <Icon name="material-symbols:settings-outline-rounded" />
-              <span>Настройки</span>
-            </NuxtLink>
             <div class="pt-4 !mt-6 border-t border-gray-800">
               <NuxtLink to="/account" class="panel-link-secondary">
                 <Icon name="material-symbols:arrow-back-rounded" />

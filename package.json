@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "nuxt build",
+    "build": "NODE_COMMIT=$(git rev-parse HEAD) nuxt build",
     "dev": "nuxt dev --port 3020",
     "generate": "nuxt generate",
     "preview": "nuxt preview",

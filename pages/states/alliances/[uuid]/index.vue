@@ -9,7 +9,7 @@ import StateCard from '~/components/states/StateCard.vue';
 import { type IAlliance, type IAllianceMember, AlliencePurpose } from '~/types/diplomacy.types';
 import type { IState } from '~/types/state.types';
 
-definePageMeta({ auth: true });
+definePageMeta({ auth: false });
 
 const route = useRoute();
 const router = useRouter();

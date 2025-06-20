@@ -23,7 +23,7 @@
               to="/"
               class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
           >
-            <Icon name="ic:outline-home" class="w-5 h-5" />
+            <Icon name="solar:home-2-bold-duotone" class="w-5 h-5" />
             <span class="truncate">Главная</span>
           </NuxtLink>
         </li>
@@ -32,7 +32,7 @@
               to="/rules"
               class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
           >
-            <Icon name="ic:outline-gavel" class="w-5 h-5" />
+            <Icon name="solar:sledgehammer-bold-duotone" class="w-5 h-5" />
             <span class="truncate">Правила сервера</span>
           </NuxtLink>
         </li>
@@ -41,7 +41,7 @@
               to="/states"
               class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
           >
-            <Icon name="ic:baseline-security" class="w-5 h-5" />
+            <Icon name="solar:shield-minimalistic-bold-duotone" class="w-5 h-5" />
             <span class="truncate">Государства</span>
           </NuxtLink>
         </li>
@@ -100,7 +100,7 @@
                 class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
                 @click="closeMobileMenu"
             >
-              <Icon name="ic:outline-home" class="w-5 h-5" />
+              <Icon name="solar:home-2-bold-duotone" class="w-5 h-5" />
               <span class="truncate">Главная</span>
             </NuxtLink>
           </li>
@@ -110,7 +110,7 @@
                 class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
                 @click="closeMobileMenu"
             >
-              <Icon name="ic:outline-gavel" class="w-5 h-5" />
+              <Icon name="solar:sledgehammer-bold-duotone" class="w-5 h-5" />
               <span class="truncate">Правила сервера</span>
             </NuxtLink>
           </li>
@@ -120,7 +120,7 @@
                 class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
                 @click="closeMobileMenu"
             >
-              <Icon name="ic:baseline-security" class="w-5 h-5" />
+              <Icon name="solar:shield-minimalistic-bold-duotone" class="w-5 h-5" />
               <span class="truncate">Государства</span>
             </NuxtLink>
           </li>
@@ -164,7 +164,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useAuth } from '#imports' /* nuxt-auth composable */
+import { useAuth } from '#imports'
 
 const showMobileMenu = ref(false)
 const { status, data, signOut } = useAuth()

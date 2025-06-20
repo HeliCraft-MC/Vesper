@@ -74,32 +74,32 @@ function goToCreate() {
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl w-full mb-12">
       <div class="bg-gray-900/50 backdrop-blur-lg rounded-lg p-6 flex flex-col items-center text-center space-y-4">
-        <Icon name="mdi:castle" class="w-12 h-12 text-red-500" />
-        <h3 class="text-xl font-semibold">Создать государство</h3>
+        <Icon name="solar:crown-star-bold-duotone" class="w-12 h-12 text-red-500" />
+        <h3 class="text-xl font-semibold">Создай государство</h3>
         <p class="text-gray-400 text-sm">Стань основателем нового мира — определи название, правила и флаг.</p>
       </div>
       <div class="bg-gray-900/50 backdrop-blur-lg rounded-lg p-6 flex flex-col items-center text-center space-y-4">
-        <Icon name="mdi:account-group" class="w-12 h-12 text-red-500" />
+        <Icon name="solar:users-group-two-rounded-bold-duotone" class="w-12 h-12 text-red-500" />
         <h3 class="text-xl font-semibold">Управлять гражданами</h3>
         <p class="text-gray-400 text-sm">Приглашай друзей, назначай роли и расширяй своё влияние.</p>
       </div>
       <div class="bg-gray-900/50 backdrop-blur-lg rounded-lg p-6 flex flex-col items-center text-center space-y-4">
-        <Icon name="mdi:city" class="w-12 h-12 text-red-500" />
+        <Icon name="solar:buildings-2-bold-duotone" class="w-12 h-12 text-red-500" />
         <h3 class="text-xl font-semibold">Развивать города</h3>
         <p class="text-gray-400 text-sm">Строй и улучшай города, контролируй ресурсы и инфраструктуру.</p>
       </div>
       <div class="bg-gray-900/50 backdrop-blur-lg rounded-lg p-6 flex flex-col items-center text-center space-y-4">
-        <Icon name="mdi:handshake-outline" class="w-12 h-12 text-red-500" />
+        <Icon name="solar:shield-minimalistic-bold-duotone" class="w-12 h-12 text-red-500" />
         <h3 class="text-xl font-semibold">Дипломатия и союзы</h3>
-        <p class="text-gray-400 text-sm">Заключай мирные договоры и создавай альянсы для защиты.</p>
+        <p class="text-gray-400 text-sm">Заключай мирные договоры и создавай альянсы.</p>
       </div>
       <div class="bg-gray-900/50 backdrop-blur-lg rounded-lg p-6 flex flex-col items-center text-center space-y-4">
-        <Icon name="mdi:sword-cross" class="w-12 h-12 text-red-500" />
+        <Icon name="solar:sledgehammer-bold-duotone" class="w-12 h-12 text-red-500" />
         <h3 class="text-xl font-semibold">Войны и конфликты</h3>
-        <p class="text-gray-400 text-sm">Объявляй войны и участвуй в масштабных сражениях.</p>
+        <p class="text-gray-400 text-sm">Объявляй войны и участвуй в сражениях.</p>
       </div>
       <div class="bg-gray-900/50 backdrop-blur-lg rounded-lg p-6 flex flex-col items-center text-center space-y-4">
-        <Icon name="mdi:history-edu" class="w-12 h-12 text-red-500" />
+        <Icon name="solar:clock-circle-bold-duotone" class="w-12 h-12 text-red-500" />
         <h3 class="text-xl font-semibold">История и хроники</h3>
         <p class="text-gray-400 text-sm">Веди летопись событий и сохраняй славные победы и достижения.</p>
       </div>
@@ -123,6 +123,12 @@ function goToCreate() {
           class="bg-gray-700 hover:bg-gray-600 transition py-3 px-8 rounded-md font-bold text-white"
       >
         Список государств сервера
+      </NuxtLink>
+      <NuxtLink
+          to="/states/alliances"
+          class="bg-gray-700 hover:bg-gray-600 transition py-3 px-8 rounded-md font-bold text-white"
+      >
+        Список альянсов сервера
       </NuxtLink>
     </div>
 

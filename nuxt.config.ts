@@ -40,7 +40,9 @@ export default defineNuxtConfig({
   css: ['~/assets/css/fonts.css'],
   runtimeConfig: {
     public: {
-      backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'
+      backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000',
+
+      vesperCommit: process.env.NODE_COMMIT || 'unknown', //frontend software commit
     },
     turnstile: {
       // This can be overridden at runtime via the NUXT_TURNSTILE_SECRET_KEY
@@ -65,7 +67,7 @@ export default defineNuxtConfig({
   auth: {
     isEnabled: true,
     /* originEnvKey позволяет менять baseURL без ребилда */
-    originEnvKey: 'NUXT_PUBLIC_BACKEND_URL',                 // :contentReference[oaicite:6]{index=6}
+    originEnvKey: 'NUXT_PUBLIC_BACKEND_URL',
     /* fallback на случай отсутствия env (dev-режим) */
     baseURL: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}`,
     /* автоматическое обновление access-токена */

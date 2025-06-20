@@ -11,7 +11,6 @@
       />
     </transition>
 
-    <!-- Тёмная маска -->
     <div class="absolute inset-0 bg-black/70"></div>
 
     <!-- Кредит за скриншоты -->
@@ -25,13 +24,12 @@
     <main
         class="relative flex-grow flex flex-col items-center justify-center px-6 py-16 pt-24 md:pt-28"
     >
-      <!-- ⚡ Респонсивный размер -->
       <h1 class="pr2p font-extrabold text-red-500 mb-4 text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
         HeliCraft
       </h1>
 
       <p class="text-lg sm:text-xl text-gray-300 mb-6">
-        Ванильный сервер на версии 1.21.5
+        Ванильный сервер на версии 1.21.6
       </p>
 
       <div
@@ -44,7 +42,7 @@
             aria-label="Скопировать адрес сервера"
         >
           <Icon
-              :name="copySuccess ? 'ic:baseline-check' : 'ic:baseline-content-copy'"
+              :name="copySuccess ? 'solar:clipboard-check-bold-duotone' : 'solar:copy-bold-duotone'"
               class="w-6 h-6 text-white"
           />
         </button>
@@ -56,9 +54,7 @@
 
       <div class="max-w-xl text-center text-gray-400 mb-8 px-4">
         <p>
-          HeliCraft — уникальный ванильный Minecraft-сервер. Вы исследуете мир,
-          строите, общаетесь и участвуете в эксклюзивных ивентах. Опытные
-          модераторы всегда готовы помочь новичкам.
+          HeliCraft — уникальный ванильный Minecraft-сервер с системой государств.
         </p>
       </div>
     </main>
@@ -67,7 +63,7 @@
 
 <script setup lang="ts">
 
-definePageMeta({ auth: false }) // публичная
+definePageMeta({ auth: false })
 
 
 const serverAddress = 'mc.helicraft.ru'
