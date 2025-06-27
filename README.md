@@ -1,75 +1,105 @@
-# Nuxt Minimal Starter
+![Logo](https://github.com/HeliCraft-MC/Vesper/blob/master/public/heliLogo0wWText.png)
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+# HeliCraft Vesper
 
-## Setup
+**EN**: Frontend application for the HeliCraft Minecraft server
 
-Make sure to install dependencies:
+**RU**: Фронтенд-приложение для Minecraft-сервера HeliCraft
+
+---
+
+<p align="center">
+  <a href="https://github.com/HeliCraft-MC/Vesper">
+    <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/HeliCraft-MC/Vesper?style=social">
+  </a>
+  <a href="https://github.com/HeliCraft-MC/Vesper/issues">
+    <img alt="GitHub issues" src="https://img.shields.io/github/issues/HeliCraft-MC/Vesper?style=flat-square">
+  </a>
+  <a href="https://github.com/HeliCraft-MC/Vesper/blob/master/LICENSE">
+    <img alt="License" src="https://img.shields.io/github/license/HeliCraft-MC/Vesper?style=flat-square">
+  </a>
+  <a href="https://beta.helicraft.ru/">
+    <img alt="Live Demo" src="https://img.shields.io/website?url=https%3A%2F%2Fbeta.helicraft.ru&style=flat-square">
+  </a>
+</p>
+
+---
+
+## 🌐 Demo
+
+[https://beta.helicraft.ru/](https://beta.helicraft.ru/)
+
+---
+
+## 🚀 Run Locally
+
+### 1. Clone the project
 
 ```bash
-# npm
+git clone https://github.com/HeliCraft-MC/Vesper
+```
+
+### 2. Go to the project directory
+
+```bash
+cd Vesper
+```
+
+### 3. Install dependencies
+
+```bash
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+### 4. Copy and configure environment variables
 
 ```bash
-# npm
+cp .env.example .env
+nano .env
+```
+
+### 5. Start the development server
+
+```bash
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+---
 
-Build the application for production:
+## 🛠️ Tech Stack
 
-```bash
-# npm
-npm run build
+* **Nuxt 3** - современный фреймворк на Vue 3
+* **TypeScript** - статическая типизация
+* **Tailwind CSS** - утилитарный CSS
 
-# pnpm
-pnpm build
+### Используемые модули Nuxt:
 
-# yarn
-yarn build
+* `@pinia/nuxt` - управление состоянием
+* `@nuxtjs/tailwindcss` - интеграция Tailwind CSS
+* `@nuxt/image`, `@nuxt/fonts`, `@nuxt/icon`, `@nuxt/content` - графика и контент
+* `@nuxtjs/turnstile` - защита от ботов через Cloudflare Turnstile
+* `@sidebase/nuxt-auth` - авторизация и управление сессиями
 
-# bun
-bun run build
-```
+---
 
-Locally preview production build:
+## 🔐 Auth Features
 
-```bash
-# npm
-npm run preview
+* Поддержка local-провайдера
+* Access и refresh токены
+* Middleware-защита страниц
+* Автоматическое обновление токена
 
-# pnpm
-pnpm preview
+---
 
-# yarn
-yarn preview
+## ⚙️ Dev Features
 
-# bun
-bun run preview
-```
+* Прокси роуты для API (`/distant-api/**`, `/plan-api/**`)
+* Отображение коммита (переменная `vesperCommit`)
+* Легко кастомизируемая конфигурация через `nuxt.config.ts`
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+---
+
+## 📄 License
+
+Licensed under the **EUPL-1.2-or-later**
+[View full license](https://github.com/HeliCraft-MC/Vesper/blob/master/LICENSE)
