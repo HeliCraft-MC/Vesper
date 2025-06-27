@@ -1,15 +1,32 @@
 <template>
   <div class="relative min-h-screen bg-black text-white flex flex-col">
-    <!-- Фоновая карусель -->
-    <transition name="fade" mode="out-in">
-      <NuxtImg
-          v-if="current"
-          :src="current"
-          :key="current"
-          class="absolute inset-0 object-cover w-full h-full"
-          priority
-      />
-    </transition>
+    <!-- Фоновая карусель с двумя компонентами для плавного кроссфейда -->
+    <NuxtImg
+        v-if="imageSrcA"
+        :key="imageSrcA"
+        :src="imageSrcA"
+        @load="onImageLoaded('A')"
+        class="absolute inset-0 object-cover w-full h-full transition-opacity duration-1000 ease-in-out"
+        :class="isAVisible ? 'opacity-100' : 'opacity-0'"
+        format="avif,webp"
+        quality="60"
+        loading="eager"
+        priority
+        placeholder
+    />
+    <NuxtImg
+        v-if="imageSrcB"
+        :key="imageSrcB"
+        :src="imageSrcB"
+        @load="onImageLoaded('B')"
+        class="absolute inset-0 object-cover w-full h-full transition-opacity duration-1000 ease-in-out"
+        :class="!isAVisible ? 'opacity-100' : 'opacity-0'"
+        format="avif,webp"
+        quality="60"
+        loading="eager"
+        priority
+        placeholder
+    />
 
     <div class="absolute inset-0 bg-black/70"></div>
 
@@ -62,53 +79,136 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 
-definePageMeta({ auth: false })
+definePageMeta({ auth: false });
 
+const serverAddress = 'mc.helicraft.ru';
+const online = ref(0);
+const copySuccess = ref(false);
 
-const serverAddress = 'mc.helicraft.ru'
-const online = ref(0)
-const copySuccess = ref(false)
+const { data: images } = await useFetch<string[]>('/api/intro-images');
 
-const { data: images } = await useFetch<string[]>('/api/intro-images')
-const current = ref<string>('')
+// --- Финальная, надежная логика для карусели ---
 
-let timerId: number
+const imageSrcA = ref<string | null>(null);
+const imageSrcB = ref<string | null>(null);
+const isAVisible = ref(false);
 
-onMounted(() => {
-  // Имитация онлайна
-  setTimeout(() => (online.value = -1), 500)
+// Ref для отслеживания ID последнего загруженного изображения
+const lastLoaded = ref<'A' | 'B' | null>(null);
+let stop = false;
 
-  // Случайное фоновое изображение
-  current.value = images.value?.[Math.floor(Math.random() * images.value.length)] ?? ''
+// Обработчик просто записывает, КАКОЙ компонент загрузился
+function onImageLoaded(id: 'A' | 'B') {
+  //console.log(`%c[LOADED] Component '${id}' finished loading.`, 'color: green');
+  lastLoaded.value = id;
+}
 
-  // Смена фона каждые 5 с
-  timerId = window.setInterval(() => {
-    current.value = images.value?.[Math.floor(Math.random() * images.value.length)] ?? ''
-  }, 5000)
-})
+// Хелпер, который ждет загрузки изображения с конкретным ID
+function waitForLoad(idToWaitFor: 'A' | 'B'): Promise<void> {
+  //console.log(`[WAIT] Waiting for component '${idToWaitFor}' to load.`);
+  return new Promise(resolve => {
+    const unwatch = watch(lastLoaded, (newlyLoadedId) => {
+      if (newlyLoadedId === idToWaitFor) {
+        //console.log(`[WATCH] Confirmed: '${idToWaitFor}' has loaded. Resolving promise.`);
+        unwatch();
+        resolve();
+      }
+    });
+  });
+}
 
-onUnmounted(() => clearInterval(timerId))
+// Хелпер для получения случайного изображения, не повторяющего текущее
+function getNextImage(currentSrc: string | null): string | null {
+  if (!images.value || images.value.length === 0) return null;
+  if (images.value.length === 1) return images.value[0];
+
+  let next;
+  do {
+    next = images.value[Math.floor(Math.random() * images.value.length)];
+  } while (next === currentSrc);
+  return next;
+}
+
+async function cycle() {
+  console.log('%c[CYCLE] Cycle started.', 'font-weight: bold; color: blue;');
+  if (!images.value || images.value.length === 0) {
+    console.error('[CYCLE] No images found. Exiting.');
+    return;
+  }
+
+  // 1. Загружаем начальное изображение в компонент A
+  lastLoaded.value = null;
+  const initialSrc = getNextImage(null);
+  //console.log(`[CYCLE] 1. Assigning initial image to A: ${initialSrc}`);
+  imageSrcA.value = initialSrc;
+  await waitForLoad('A');
+  if (stop) return;
+  //console.log('[CYCLE] 1a. Initial image A has loaded.');
+
+  // 2. Делаем компонент A видимым
+  isAVisible.value = true;
+  //console.log('[CYCLE] 2. Made component A visible.');
+
+  // 3. Запускаем бесконечный цикл смены
+  //console.log('%c[CYCLE] 3. Starting main loop...', 'font-weight: bold; color: blue;');
+  while (!stop) {
+    // 3a. Ждем 5 секунд
+    //console.log('[CYCLE] 3a. Waiting for 5 seconds...');
+    await new Promise(r => setTimeout(r, 5000));
+    if (stop) return;
+    //console.log('[CYCLE] 3a. ...5 seconds passed.');
+
+    // 3б. Определяем следующий URL
+    const currentSrc = isAVisible.value ? imageSrcA.value : imageSrcB.value;
+    const nextSrc = getNextImage(currentSrc);
+    //console.log(`[CYCLE] 3b. Next src: ${nextSrc}`);
+
+    lastLoaded.value = null;
+
+    // 3в. Загружаем следующее изображение в невидимый компонент и ждем его
+    if (isAVisible.value) {
+      // A видимый, значит загружаем в B
+      //console.log('[CYCLE] 3c. A is visible. Loading next image into B.');
+      imageSrcB.value = nextSrc;
+      await waitForLoad('B');
+    } else {
+      // B видимый, значит загружаем в A
+      //console.log('[CYCLE] 3c. B is visible. Loading next image into A.');
+      imageSrcA.value = nextSrc;
+      await waitForLoad('A');
+    }
+
+    if (stop) {
+      //console.log('%c[CYCLE] Stop signal received, exiting loop.', 'color: red');
+      return;
+    }
+
+    // 3г. Переключаем видимость, чтобы показать новое изображение
+    //console.log(`%c[CYCLE] 3d. Toggling visibility. 'isAVisible' will become ${!isAVisible.value}`, 'color: purple');
+    isAVisible.value = !isAVisible.value;
+    //console.log('--------------------------------');
+  }
+}
+
+onMounted(cycle);
+
+onUnmounted(() => {
+  stop = true;
+});
 
 function copyAddress() {
   navigator.clipboard
       .writeText(serverAddress)
       .then(() => {
-        copySuccess.value = true
-        setTimeout(() => (copySuccess.value = false), 2000)
+        copySuccess.value = true;
+        setTimeout(() => (copySuccess.value = false), 2000);
       })
-      .catch(() => console.error('Не удалось скопировать адрес'))
+      .catch(() => console.error('Не удалось скопировать адрес'));
 }
 </script>
 
 <style scoped>
-/* Плавный fade для фоновых картинок */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 1s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
+/* Дополнительные стили не требуются, так как все управляется классами Tailwind */
 </style>
