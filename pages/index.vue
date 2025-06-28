@@ -65,9 +65,10 @@
         </button>
       </div>
 
-      <p class="text-red-400 text-base sm:text-lg mb-8">
-        <PlayerCountText :server-ip="serverAddress" />
-      </p>
+      <PlayerCountText
+          :server-ip="serverAddress"
+          class="text-red-400 text-base sm:text-lg mb-8"
+      />
 
       <div class="max-w-xl text-center text-gray-400 mb-8 px-4">
         <p>

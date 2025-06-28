@@ -47,12 +47,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <span v-if="isServerOnline">
+  <p v-if="isServerOnline">
     Онлайн игроков: <span class="font-semibold">{{ serverOnlinePlayers }}/{{ serverMaxPlayers }}</span>
-  </span>
-  <span v-else>
+  </p>
+  <p v-else>
     Сервер недоступен
-  </span>
+  </p>
 </template>
 
 <style scoped>
