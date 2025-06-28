@@ -9,6 +9,7 @@ const nickname = computed(() => data.value?.nickname ?? '')
 /* ---------- viewer ---------- */
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 let viewer: skinview3d.SkinViewer | null = null
+const error = ref<string>('')
 
 onMounted(() => {
   if (!canvasRef.value) return
@@ -40,9 +41,26 @@ const showModal = ref(false)
 const uploading = ref(false)
 
 function onSelect (e: Event) {
-  file.value    = (e.target as HTMLInputElement).files?.[0] ?? null
-  preview.value = file.value ? URL.createObjectURL(file.value) : ''
+  const input = e.target as HTMLInputElement
+  const selectedFile = input.files?.[0] ?? null
+
+  error.value = ''
+  preview.value = ''
+  file.value = null
+
+  if (!selectedFile) return
+
+  // Проверяем тип и расширение
+  const isValidType = selectedFile.type === 'image/png' || selectedFile.name.toLowerCase().endsWith('.png')
+  if (!isValidType) {
+    error.value = 'Файл должен быть в формате PNG.'
+    return
+  }
+
+  file.value = selectedFile
+  preview.value = URL.createObjectURL(selectedFile)
 }
+
 
 async function confirmUpload() {
   if (!file.value) return
@@ -87,11 +105,13 @@ async function confirmUpload() {
 
       <!-- инструменты -->
       <div class="flex-1 space-y-4">
-        <input type="file" accept="image/png,image/bmp"
+        <input type="file" accept="image/png"
                @change="onSelect"
                class="file:bg-red-500 file:hover:bg-red-600 file:text-black
                       file:px-4 file:py-2 file:rounded-md file:font-bold
                       bg-gray-800/70 rounded-md w-full" />
+
+        <p v-if="error" class="text-red-400 text-sm">{{ error }}</p>
 
         <!-- предпросмотр -->
         <NuxtImg v-if="preview" :src="preview"
