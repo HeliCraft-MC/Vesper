@@ -54,12 +54,23 @@ async function handleLogin () {
   loading.value = true
   errorMsg.value = ''
 
+  const nicknameRegEx = /^[a-zA-Z0-9_]{3,16}$/
+
+  if (!nicknameRegEx.test(form.nickname)) {
+    errorMsg.value = 'Никнейм может содержать 3-16 символов: латинские буквы, цифры и _'
+    loading.value = false
+    turnstile.value?.reset()
+    return
+  }
+
   // 2) Проверка наличия CAPTCHA-токена
   if (!captchaToken.value) {
     errorMsg.value = 'Пожалуйста, подтвердите, что вы не робот'
     loading.value = false
     return
   }
+
+
 
   // 3) Верификация токена на сервере
   try {
