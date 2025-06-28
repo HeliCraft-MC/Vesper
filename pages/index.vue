@@ -66,7 +66,7 @@
       </div>
 
       <p class="text-red-400 text-base sm:text-lg mb-8">
-        Онлайн игроков: <span class="font-semibold">{{ online }}/0 (Data not avaible)</span>
+        <PlayerCountText :server-ip="serverAddress" />
       </p>
 
       <div class="max-w-xl text-center text-gray-400 mb-8 px-4">
@@ -80,11 +80,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
+import PlayerCountText from "../components/PlayerCountText.vue";
 
 definePageMeta({ auth: false });
 
 const serverAddress = 'mc.helicraft.ru';
-const online = ref(0);
 const copySuccess = ref(false);
 
 const { data: images } = await useFetch<string[]>('/api/intro-images');
