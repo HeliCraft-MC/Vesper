@@ -3,7 +3,7 @@ Inline component to resolve player count on a specific server
 -->
 
 <script setup lang="ts">
-import { useIntervalFn } from '@vueuse/core'
+import {useIntervalFn} from '@vueuse/core';
 import {onMounted} from "vue";
 
 const props = defineProps({
@@ -13,21 +13,21 @@ const props = defineProps({
 const isServerOnline = ref(false);
 const serverOnlinePlayers = ref(-1);
 const serverMaxPlayers = ref(-1);
-const url = `https://api.mcstatus.io/v2/status/java/${props.serverIp}?query=false`
+const url = `https://api.mcstatus.io/v2/status/java/${props.serverIp}?query=false`;
 
 async function fetchPlayerCount() {
   const res = await fetch(url, {
     method: 'GET',
   });
 
-  if(res.status !== 200) {
+  if (res.status !== 200) {
     isServerOnline.value = false;
     return;
   }
   const json = await res.json();
   const jsonIsServerOnline = json.online;
 
-  if(jsonIsServerOnline) {
+  if (jsonIsServerOnline) {
     serverOnlinePlayers.value = json.players.online;
     serverMaxPlayers.value = json.players.max;
     isServerOnline.value = true;
