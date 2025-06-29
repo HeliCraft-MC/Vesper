@@ -50,12 +50,12 @@
       </p>
 
       <div
-          class="flex items-center bg-gray-800/50 rounded-md px-5 py-3 mb-6 space-x-3"
+          class="flex items-center bg-gray-800/50 rounded-md px-5 py-3 mb-6 space-x-3 server-address-copy"
+          @click="copyAddress"
       >
         <p class="font-mono text-xl sm:text-2xl">{{ serverAddress }}</p>
         <button
-            @click="copyAddress"
-            class="flex items-center justify-center p-2 rounded-full transition hover:bg-gray-700 hover:text-red-400 focus:outline-none"
+            class="flex items-center justify-center p-2 rounded-full"
             aria-label="Скопировать адрес сервера"
         >
           <Icon
@@ -212,4 +212,9 @@ function copyAddress() {
 
 <style scoped>
 /* Дополнительные стили не требуются, так как все управляется классами Tailwind */
+
+.server-address-copy {
+  user-select: none;
+  cursor: pointer;
+}
 </style>
