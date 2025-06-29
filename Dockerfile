@@ -13,7 +13,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # 2. Устанавливаем все зависимости строго по lock-файлу
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm install
 
 # 3. Копируем исходники и собираем Nuxt
