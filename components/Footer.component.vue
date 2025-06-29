@@ -13,7 +13,13 @@
       <p class="text-sm">© 2020-{{currentYear}} HeliCraft.</p>
       <p class="text-sm">NOT AN OFFICIAL MINECRAFT SERVICE. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.</p>
 
-      <p class="text-sm"> Running under Vesper@{{ vesperCommit }}   </p>
+      <p class="text-sm">
+        Running under
+        <NuxtLink class="text-sm" :to="'https://github.com/HeliCraft-MC/Vesper/commit/' + vesperCommit"> Vesper@{{ vesperCommitShort }} </NuxtLink>
+        and
+        <NuxtLink class="text-sm" :to="'https://github.com/HeliCraft-MC/Teapot/commit/' + teapotCommit"> Teapot@{{ teapotCommitShort }} </NuxtLink>
+      </p>
+
 
       <p class="text-sm">Site software developed by ms0ur. Licensed under <NuxtLink to="https://eupl.eu/1.2/en/" class="underline">EUPL-1.2-or-later</NuxtLink></p>
     </div>
@@ -27,4 +33,10 @@ const config = useRuntimeConfig()
 const currentYear = new Date().getFullYear();
 
 const vesperCommit = config.public.vesperCommit || 'unknown';
+const vesperCommitShort = vesperCommit.toString().slice(0, 7);
+
+// получить json по /distant-api/ и из json взять строку commit
+const res = await $fetch('/distant-api');
+const teapotCommit = res.commit || 'unknown';
+const teapotCommitShort = teapotCommit.toString().slice(0, 7);
 </script>
