@@ -43,6 +43,7 @@ ENV NODE_ENV=production
 # 6. Production-зависимости и артефакты
 COPY --from=builder /app/node_modules   ./node_modules
 COPY --from=builder /app/.output        ./.output
+COPY --from=builder /app/public         ./public
 COPY ecosystem.config.cjs package*.json ./
 
 # 7. PM2-Runtime — рекомендованный способ работы PM2 в Docker
