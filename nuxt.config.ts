@@ -47,7 +47,7 @@ export default defineNuxtConfig({
     turnstile: {
       // This can be overridden at runtime via the NUXT_TURNSTILE_SECRET_KEY
       // environment variable.
-      secretKey: '1x0000000000000000000000000000000AA',
+      secretKey: process.env.NUXT_TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA',
     },
   },
   icon: {
@@ -61,7 +61,7 @@ export default defineNuxtConfig({
     }
   },
   turnstile: {
-    siteKey: '1x00000000000000000000AA',
+    siteKey: process.env.NUXT_TURNSTILE_SITEKEY || '1x00000000000000000000AA',
     addValidateEndpoint: true
   },
   auth: {
