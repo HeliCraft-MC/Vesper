@@ -10,7 +10,7 @@ const props = defineProps({
   serverIp: String,
 });
 
-const isServerOnline = ref(false);
+const isServerOnline = ref(true);
 const serverOnlinePlayers = ref(-1);
 const serverMaxPlayers = ref(-1);
 const url = `https://api.mcstatus.io/v2/status/java/${props.serverIp}?query=false`;
