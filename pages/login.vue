@@ -18,8 +18,8 @@ const loading       = ref(false)
 const errorMsg      = ref('')
 
 /* ——— согласие ——— */
-const consentCookie = useCookie<string>('heli-consent', { default: () => '' })
-const showConsent   = ref(consentCookie.value !== '1')
+const consentCookie = useCookie<boolean>('heli-consent', { default: () => false })
+const showConsent   = ref(false)
 const agreeData     = ref(false)
 const agreeAge      = ref(false)
 const canContinue   = computed(() => agreeData.value && agreeAge.value)
@@ -32,7 +32,10 @@ const agreeAgeLabel  = ref<HTMLElement | null>(null)
 const turnstile     = ref<{ reset: () => void } | null>(null)
 const captchaToken  = ref<string>('')
 
-
+/* Проверка на наличие куки, разрешающего сбор данных */
+if(consentCookie.value !== true) {
+  showConsent.value = true;
+}
 
 /* ---------- блокировка скролла фона ---------- */
 watch(showConsent, open => {
@@ -120,14 +123,14 @@ async function acceptConsent() {
     }
     return
   }
-  consentCookie.value = '1'
+  consentCookie.value = true
   showConsent.value = false
 }
 
 
 /* ---------- отказаться ---------- */
 function declineConsent () {
-  consentCookie.value = '0'
+  consentCookie.value = false
   router.push('/')
 }
 </script>
