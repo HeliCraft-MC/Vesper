@@ -40,7 +40,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/fonts.css'],
   runtimeConfig: {
     public: {
-      backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000',
+      backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'https://api.helicraft.ru',
 
       vesperCommit: process.env.NODE_COMMIT || 'unknown', //frontend software commit
     },
@@ -56,7 +56,7 @@ export default defineNuxtConfig({
   },
   nitro: {
     routeRules: {
-      '/distant-api/**': { proxy: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}/**` },
+      '/distant-api/**': { proxy: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'https://api.helicraft.ru'}/**` },
       '/plan-api/**': { proxy: `${process.env.NUXT_PUBLIC_PLAN_API_URL || 'https://analytics.helicraft.ru'}/**` }
     }
   },
@@ -69,7 +69,7 @@ export default defineNuxtConfig({
     /* originEnvKey позволяет менять baseURL без ребилда */
     originEnvKey: 'NUXT_PUBLIC_BACKEND_URL',
     /* fallback на случай отсутствия env (dev-режим) */
-    baseURL: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'http://localhost:3000'}`,
+    baseURL: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'https://api.helicraft.ru'}`,
     /* автоматическое обновление access-токена */
     sessionRefresh: { enableOnWindowFocus: true, enablePeriodically: 15 * 60_000 },
     /* включать/выключать глобальную защиту на всё приложение */
