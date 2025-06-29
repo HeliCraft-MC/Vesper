@@ -18,8 +18,13 @@ RUN npm install
 
 # 3. Копируем исходники и собираем Nuxt
 COPY . .
+
 ARG NODE_COMMIT=unknown
 ENV NODE_COMMIT=${NODE_COMMIT}
+
+ARG ENVIR
+RUN echo "$ENVIR" > /app/.env
+
 RUN npm run build
 
 # 4. После сборки удаляем dev-пакеты, чтобы сузить node_modules
