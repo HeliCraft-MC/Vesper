@@ -13,7 +13,7 @@ import HistoryEventCard from '~/components/history/HistoryEventCard.vue'
 
 // Import types
 import { RolesInState, StateStatus, GovernmentForm } from '~/types/state.types'
-import type { IState, IStateOrder, IStateWarrant } from '~/types/state.types'
+import type { IState, IStateOrder, IStateWarrant, StateStatus } from '~/types/state.types'
 import type { IHistoryEvent } from '~/types/history.types'
 
 definePageMeta({ auth: false })
@@ -348,7 +348,7 @@ async function loadMore() {
               <button v-if="state.status !== 'merged'" @click="deleteState" class="btn-admin-danger md:ml-auto">Удалить</button>
             </div>
           </div>
-          <div class="user-panel">
+          <div v-if="state.status !== StateStatus.PENDING" class="user-panel">
             <h3 class="panel-header"><Icon name="solar:settings-bold-duotone" />Панель управления</h3>
             <div class="flex flex-wrap gap-3 items-center">
               <NuxtLink v-if="isHighRank && canTakeAction" :to="uuid + '/panel'" class="btn-action-primary"><Icon name="solar:widget-5-bold-duotone" /><span>Панель управления</span></NuxtLink>
