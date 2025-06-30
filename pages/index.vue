@@ -49,21 +49,10 @@
         Ванильный сервер на версии 1.21.6
       </p>
 
-      <div
-          class="flex items-center bg-gray-800/50 rounded-md px-5 py-3 mb-6 space-x-3 server-address-copy"
-          @click="copyAddress"
-      >
-        <p class="font-mono text-xl sm:text-2xl">{{ serverAddress }}</p>
-        <button
-            class="flex items-center justify-center p-2 rounded-full"
-            aria-label="Скопировать адрес сервера"
-        >
-          <Icon
-              :name="copySuccess ? 'solar:clipboard-check-bold-duotone' : 'solar:copy-bold-duotone'"
-              class="w-6 h-6 text-white"
-          />
-        </button>
-      </div>
+      <ServerAddressCopy
+        :server-address="serverAddress"
+        class="space-x-3"
+      />
 
       <PlayerCountText
           :server-ip="serverAddress"
@@ -81,8 +70,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
-import PlayerCountText from "../components/PlayerCountText.vue";
 import PlayerCountText from "../components/ui/PlayerCountText.vue";
+import ServerAddressCopy from "../components/ui/ServerAddressCopy.vue";
 
 definePageMeta({ auth: false });
 
