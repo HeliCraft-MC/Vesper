@@ -13,7 +13,7 @@ import HistoryEventCard from '~/components/history/HistoryEventCard.vue'
 
 // Import types
 import { RolesInState, StateStatus, GovernmentForm } from '~/types/state.types'
-import type { IState, IStateOrder, IStateWarrant, StateStatus } from '~/types/state.types'
+import type { IState, IStateOrder, IStateWarrant } from '~/types/state.types'
 import type { IHistoryEvent } from '~/types/history.types'
 
 definePageMeta({ auth: false })
