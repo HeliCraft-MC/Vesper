@@ -27,7 +27,7 @@
 
 ## 🌐 Demo
 
-[https://beta.helicraft.ru/](https://beta.helicraft.ru/)
+[https://helicraft.ru/](https://helicraft.ru/)
 
 ---
 
