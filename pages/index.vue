@@ -82,11 +82,11 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue';
 import PlayerCountText from "../components/PlayerCountText.vue";
+import PlayerCountText from "../components/ui/PlayerCountText.vue";
 
 definePageMeta({ auth: false });
 
 const serverAddress = 'mc.helicraft.ru';
-const copySuccess = ref(false);
 
 const { data: images } = await useFetch<string[]>('/api/intro-images');
 
@@ -198,23 +198,8 @@ onMounted(cycle);
 onUnmounted(() => {
   stop = true;
 });
-
-function copyAddress() {
-  navigator.clipboard
-      .writeText(serverAddress)
-      .then(() => {
-        copySuccess.value = true;
-        setTimeout(() => (copySuccess.value = false), 2000);
-      })
-      .catch(() => console.error('Не удалось скопировать адрес'));
-}
 </script>
 
 <style scoped>
 /* Дополнительные стили не требуются, так как все управляется классами Tailwind */
-
-.server-address-copy {
-  user-select: none;
-  cursor: pointer;
-}
 </style>
