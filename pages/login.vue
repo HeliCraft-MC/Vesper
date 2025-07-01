@@ -100,7 +100,7 @@ async function handleLogin () {
     )
     await router.push('/account')
   } catch (e: any) {
-    errorMsg.value = e.data?.message || e.message || 'Ошибка входа. Проверьте никнейм и пароль.'
+    errorMsg.value = e.data.data.statusMessageRu || e.message || 'Ошибка входа. Проверьте никнейм и пароль.'
     turnstile.value?.reset()
   } finally {
     loading.value = false
