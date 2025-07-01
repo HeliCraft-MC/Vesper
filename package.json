@@ -11,10 +11,9 @@
   },
   "dependencies": {
     "@cafestube/minecraft-banner-renderer": "^1.0.4",
-    "@sidebase/nuxt-auth": "^0.10.1",
     "@vueuse/nuxt": "13.3.0",
     "better-sqlite3": "^11.10.0",
-    "nuxt": "^3.17.3",
+    "nuxt": "^3.17.5",
     "pathe": "^2.0.3",
     "skinview3d": "^3.4.1",
     "vue": "^3.5.14",
@@ -30,6 +29,7 @@
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@nuxtjs/turnstile": "^1.0.0",
     "@pinia/nuxt": "^0.11.0",
+    "@sidebase/nuxt-auth": "^1.0.0",
     "sharp": "^0.34.2"
   },
   "pnpm": {
