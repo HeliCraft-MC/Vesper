@@ -293,9 +293,8 @@ async function saveChanges() {
   }
 
   try {
-    // Используем эндпоинт, который вы предоставили
     await $fetch(`/distant-api/state/${state.value.uuid}`, {
-      method: 'POST', // В вашем коде обработчик использует readMultipartFormData, что типично для POST
+      method: 'POST',
       body: formData,
     });
 
@@ -309,7 +308,7 @@ async function saveChanges() {
 
   } catch (error: any) {
     console.error("Ошибка при сохранении изменений:", error);
-    alert(`Ошибка: ${error.data?.statusMessage || error.message}`);
+    alert(`Ошибка: ${error.data?.data.statusMessage || error.message}`);
   } finally {
     isSaving.value = false;
   }
