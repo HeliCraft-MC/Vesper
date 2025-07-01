@@ -76,7 +76,7 @@
                     <fieldset v-else>
                       <legend class="block text-sm font-medium text-gray-400 mb-2">Изменить на:</legend>
                       <div class="space-y-2">
-                        <div v-for="kind in availableRelationKinds" :key="kind.value" class="flex items-center">
+                        <div v-for="kind in availableRelationKinds" :key="kind.value ?? 'none'" class="flex items-center">
                           <input :id="`relation-${kind.value}`" name="relation-kind" type="radio" :value="kind.value" v-model="newRelationSelection" class="modal-radio">
                           <label :for="`relation-${kind.value}`" class="ml-3 block text-sm font-medium text-gray-300">{{ kind.label }}</label>
                         </div>
@@ -140,7 +140,7 @@ const selectedManagingStateUuid = ref<string>('');
 const managingStatesDetails = ref<Pick<IState, 'uuid' | 'name'>[]>([]);
 const isLoadingDetails = ref(false);
 const detailsError = ref<string | null>(null);
-const currentRelation = ref<RelationKind>(RelationKind.NEUTRAL);
+const currentRelation = ref<RelationKind | null>(null);
 const newRelationSelection = ref<RelationKind>(RelationKind.NEUTRAL);
 const pendingRequest = ref<IStateRelationRequest | null>(null);
 const isSubmitting = ref(false);
@@ -151,13 +151,14 @@ const isSubmitting = ref(false);
 const availableRelationKinds = [
   { value: RelationKind.ALLY, label: 'Дружба' },
   { value: RelationKind.NEUTRAL, label: 'Нейтралитет' },
+  { value: null, label: 'Нет отношений' },
   { value: RelationKind.ENEMY, label: 'Вражда' },
 ];
 
-const relationText = (kind: RelationKind) => availableRelationKinds.find(k => k.value === kind)?.label ?? 'Нет';
+const relationText = (kind: RelationKind | null) => availableRelationKinds.find(k => k.value === kind)?.label ?? 'Нет';
 
-const relationClass = (kind: RelationKind) => ({
-  'text-gray-300': kind === RelationKind.NEUTRAL,
+const relationClass = (kind: RelationKind | null) => ({
+  'text-gray-300': (kind === RelationKind.NEUTRAL) || (kind == null),
   'text-green-400': kind === RelationKind.ALLY,
   'text-red-400': kind === RelationKind.ENEMY,
 });
@@ -230,9 +231,9 @@ async function fetchRelationDetails() {
     /* ------------------------------------------------------------------
      * 2. Определяем итоговый тип отношений.
      * ---------------------------------------------------------------- */
-    let kind: RelationKind
+    let kind: RelationKind | null
     if (raw == null || raw === '') {
-      kind = RelationKind.NEUTRAL
+      kind = null
     } else if (typeof raw === 'string') {
       kind = raw as RelationKind
     } else {
@@ -240,7 +241,7 @@ async function fetchRelationDetails() {
     }
 
     currentRelation.value = kind
-    newRelationSelection.value = kind
+    newRelationSelection.value = kind ?? RelationKind.NEUTRAL
 
     /* ------------------------------------------------------------------
      * 3. Получаем незавершённые запросы (если есть).
