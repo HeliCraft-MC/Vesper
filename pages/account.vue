@@ -8,6 +8,15 @@ import NationsCard from "~/components/account/NationsCard.vue";
 definePageMeta({ auth: true })
 
 const { signOut }: { signOut: () => void } = useAuth()
+
+const signOutPage = async () => {
+  try {
+    signOut()
+    window.location.href = '/'
+  } catch (error) {
+    console.error('Ошибка при выходе:', error)
+  }
+}
 </script>
 
 <template>
@@ -20,7 +29,7 @@ const { signOut }: { signOut: () => void } = useAuth()
 
       <!-- Выход -->
       <div class="text-center">
-        <button @click="signOut"
+        <button @click="signOutPage"
                 class="bg-gray-700 hover:bg-gray-600 transition px-6 py-3 rounded-md">
           Выйти из аккаунта
         </button>

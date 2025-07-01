@@ -128,13 +128,13 @@ async function handleSubmit() {
     const body = new FormData();
     Object.entries(form.value).forEach(([k, v]) => body.append(k, String(v)));
 
-    // FIX: Отправляем файл под именем 'flag', как того требует бэкенд
     body.append('flag', file.value);
 
     const { uuid } = await $fetch('/distant-api/state/create', { method: 'POST', body });
     await router.push(`/states/${uuid}`);
   } catch (e: any) {
-    errorMsg.value = e?.data?.statusMessageRu || e.message || 'Произошла неизвестная ошибка';
+    errorMsg.value = e.data.data.statusMessageRu || e.message || 'Произошла неизвестная ошибка';
+    console.error('Ошибка при создании государства:', e);
   } finally {
     loading.value = false;
   }

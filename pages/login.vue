@@ -16,6 +16,7 @@ const { signIn }    = useAuth()
 const form          = reactive({ nickname: '', password: '' })
 const loading       = ref(false)
 const errorMsg      = ref('')
+const isPulsing = ref(false)
 
 /* ——— согласие ——— */
 const consentCookie = useCookie<boolean>('heli-consent', { default: () => false })
@@ -33,7 +34,7 @@ const turnstile     = ref<{ reset: () => void } | null>(null)
 const captchaToken  = ref<string>('')
 
 /* Проверка на наличие куки, разрешающего сбор данных */
-if(consentCookie.value !== true) {
+if(!consentCookie.value) {
   showConsent.value = true;
 }
 
@@ -99,7 +100,7 @@ async function handleLogin () {
     )
     await router.push('/account')
   } catch (e: any) {
-    errorMsg.value = e.data?.message || e.message || 'Ошибка входа. Проверьте никнейм и пароль.'
+    errorMsg.value = e.data.data.statusMessageRu || e.message || 'Ошибка входа. Проверьте никнейм и пароль.'
     turnstile.value?.reset()
   } finally {
     loading.value = false
@@ -108,9 +109,11 @@ async function handleLogin () {
 
 /* ---------- согласие ---------- */
 async function acceptConsent() {
+  if (isPulsing.value) return
   if (!canContinue.value) {
     showError.value = true
-    setTimeout(() => { showError.value = false }, 1500) // Длительность анимации
+    isPulsing.value = true
+    setTimeout(() => { showError.value = false; isPulsing.value=false }, 1500) // Длительность анимации
 
     // Ждем следующего цикла обновления DOM, чтобы гарантировать, что refs доступны
     await nextTick()
@@ -126,6 +129,7 @@ async function acceptConsent() {
   consentCookie.value = true
   showConsent.value = false
 }
+
 
 
 /* ---------- отказаться ---------- */
