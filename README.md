@@ -6,6 +6,8 @@
 
 **RU**: Фронтенд-приложение для Minecraft-сервера HeliCraft
 
+[Backend](https://github.com/HeliCraft-MC/Teapot/)
+
 ---
 
 <p align="center">
