@@ -137,6 +137,7 @@ const stats = computed(() => {
     { icon:'mdi:clock',               label:'Игровое время',   val:i.playtime },
     { icon:'mdi:progress-clock',      label:'Активное',        val:i.active_playtime },
     { icon:'mdi:sleep',               label:'AFK',             val:i.afk_time },
+    { icon:'mdi:check-decagram', label: 'Индекс активности', val: i.activity_index },
     { icon:'mdi:login',               label:'Последний визит', val:dt(i.last_seen_raw_value) },
     { icon:'mdi:lan',                 label:'⌀ пинг, мс',      val:ms(i.average_ping) ?? '–' },
     { icon:'mdi:sword',               label:'PvP-киллы',       val:k.player_kills_total },
