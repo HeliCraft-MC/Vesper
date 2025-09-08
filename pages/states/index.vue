@@ -19,7 +19,7 @@ const featured = ref<IStateWithMembers[]>([])
 onMounted(async () => {
   try {
     console.log('Загрузка списка государств...');
-    const stateList = await $fetch<IState[]>('/distant-api/state/list');
+    const stateList = await $fetch<IState[]>('/distant-api/state/list/some');
 
     console.log('Ответ от /distant-api/state/list:', stateList);
 
