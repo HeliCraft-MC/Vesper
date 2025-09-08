@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "NODE_COMMIT=$(git rev-parse HEAD) nuxt build",
+    "dev:build": "nuxt build",
     "dev": "nuxt dev --port 3020",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
@@ -12,7 +13,7 @@
   "dependencies": {
     "@cafestube/minecraft-banner-renderer": "^1.0.4",
     "@vueuse/nuxt": "13.3.0",
-    "better-sqlite3": "^11.10.0",
+    "better-sqlite3": "^12.2.0",
     "nuxt": "^3.17.5",
     "pathe": "^2.0.3",
     "skinview3d": "^3.4.1",
