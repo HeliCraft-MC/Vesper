@@ -18,18 +18,18 @@ const featured = ref<IStateWithMembers[]>([])
 
 onMounted(async () => {
   try {
-    console.log('Загрузка списка государств...');
-    const stateList = await $fetch<IState[]>('/distant-api/state/list');
+    //console.log('Загрузка списка государств...');
+    const stateList = await $fetch<IState[]>('/distant-api/state/list/some');
 
-    console.log('Ответ от /distant-api/state/list:', stateList);
+    //console.log('Ответ от /distant-api/state/list:', stateList);
 
     if (stateList && Array.isArray(stateList) && stateList.length > 0) {
-      console.log(`Получено ${stateList.length} государств. Загрузка данных об участниках...`);
+      //console.log(`Получено ${stateList.length} государств. Загрузка данных об участниках...`);
 
       const statesWithMembers = await Promise.all(
           stateList.map(async (s) => {
             try {
-              console.log(`Запрос участников для государства ${s.name} (UUID: ${s.uuid})`);
+              //console.log(`Запрос участников для государства ${s.name} (UUID: ${s.uuid})`);
               const membersResponse = await $fetch<number | { count: number }>(`/distant-api/state/${s.uuid}/members-count`);
               const membersCount = typeof membersResponse === 'number' ? membersResponse : membersResponse.count;
               return { ...s, members: membersCount };
@@ -40,11 +40,11 @@ onMounted(async () => {
           })
       );
 
-      console.log('Финальный массив государств с участниками:', statesWithMembers);
+      //console.log('Финальный массив государств с участниками:', statesWithMembers);
 
       featured.value = statesWithMembers;
     } else {
-      console.log('Сервер вернул пустой список государств.');
+      //console.log('Сервер вернул пустой список государств.');
       featured.value = [];
     }
   } catch (error) {
