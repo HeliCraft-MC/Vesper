@@ -20,7 +20,7 @@ function getClient () {
         onResponse({ response }) {
             const ct = response.headers.get('content-type') || ''
             // если вдруг прилетела HTML-страница (UI) или ответ помечен как redirected — считаем, что нужна авторизация на Plan
-            if (response.redirected || ct.includes('text/html')) {
+            if (response.redirected || ct.includes('text/html') || response.status == 302 || response.status == 301) {
                 const err: PlanError = new Error('PLAN_REDIRECT_OR_HTML')
                 err.name = 'PlanAuthRequired'
                 err.status = response.status && response.status !== 200 ? response.status : 401
