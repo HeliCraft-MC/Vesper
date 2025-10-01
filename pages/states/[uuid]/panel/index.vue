@@ -264,41 +264,94 @@ async function saveChanges() {
   if (!state.value?.uuid) return;
   isSaving.value = true;
 
-  const formData = new FormData();
-  const { data: session } = useAuth();
-
-  // Добавляем UUID пользователя, который вносит изменения
-  formData.append('updaterUuid', session.value?.uuid || '');
-
-  // Добавляем измененные поля
-  formData.append('name', editableState.value.name || '');
-  formData.append('description', editableState.value.description || '');
-  formData.append('color', editableState.value.color_hex || '');
-  formData.append('govForm', editableState.value.gov_form || GovernmentForm.OTHER);
-  formData.append('telegramLink', editableState.value.telegram_link || '');
-  formData.append('map_link', editableState.value.map_link || '');
-
-  // Булевы значения нужно отправлять как строки, как ожидает бэкенд
-  formData.append('hasElections', String(editableState.value.has_elections || false));
-  formData.append('allowDualCitezenship', String(editableState.value.allow_dual_citizenship || false));
-  formData.append('freeEntry', String(editableState.value.free_entry || false));
-
-  // Описание для входа добавляем только если свободный вход отключен
-  if (!editableState.value.free_entry) {
-    formData.append('freeEntryDesc', editableState.value.free_entry_description || '');
-  }
-
-  if (newFlagFile.value) {
-    formData.append('flag', newFlagFile.value);
-  }
-
   try {
-    await $fetch(`/distant-api/state/${state.value.uuid}`, {
-      method: 'POST',
+    const original = state.value!;
+    const edited = editableState.value;
+
+    // локальные утилиты для сравнения
+    const normStr = (v: unknown) => (v ?? '').toString().trim();
+    const normBool = (v: unknown) => Boolean(v);
+    const strChanged = (a: unknown, b: unknown) => normStr(a) !== normStr(b);
+    const boolChanged = (a: unknown, b: unknown) => normBool(a) !== normBool(b);
+
+    const formData = new FormData();
+    const { data: session } = useAuth();
+
+    // Всегда добавляем того, кто обновляет
+    formData.append('updaterUuid', session.value?.uuid || '');
+
+    let changes = 0;
+
+    // --- Строковые поля ---
+    const stringMap: Array<[keyof IState, string]> = [
+      ['name', 'name'],
+      ['description', 'description'],
+      ['color_hex', 'color'],
+      ['gov_form', 'govForm'],
+      ['telegram_link', 'telegramLink'],
+      ['map_link', 'map_link'],
+    ];
+
+    for (const [k, apiKey] of stringMap) {
+      if (k in edited && strChanged((edited as any)[k], (original as any)[k])) {
+        formData.append(apiKey, normStr((edited as any)[k]));
+        changes++;
+      }
+    }
+
+    // --- Булевы поля ---
+    const boolMap: Array<[keyof IState, string]> = [
+      ['has_elections', 'hasElections'],
+      ['allow_dual_citizenship', 'allowDualCitezenship'],
+      ['free_entry', 'freeEntry'],
+    ];
+
+    let freeEntryChanged = false;
+
+    for (const [k, apiKey] of boolMap) {
+      if (k in edited && boolChanged((edited as any)[k], (original as any)[k])) {
+        formData.append(apiKey, String(normBool((edited as any)[k])));
+        changes++;
+        if (k === 'free_entry') freeEntryChanged = true;
+      }
+    }
+
+    // --- free_entry_description — только когда вход несвободный ---
+    const editedFreeEntry = 'free_entry' in edited ? normBool((edited as any).free_entry) : normBool((original as any).free_entry);
+    const needDescNow = !editedFreeEntry;
+
+    if (needDescNow) {
+      const descChanged = ('free_entry_description' in edited)
+          ? strChanged((edited as any).free_entry_description, (original as any).free_entry_description)
+          : false;
+
+      if (descChanged || freeEntryChanged) {
+        formData.append('freeEntryDesc', normStr((edited as any).free_entry_description));
+        changes++;
+      }
+    } else {
+      // ignore
+    }
+
+    // --- Файл флага ---
+    if (newFlagFile.value) {
+      formData.append('flag', newFlagFile.value);
+      changes++;
+    }
+
+    // Если изменений нет — не отправляем запрос
+    if (changes === 0) {
+      isSaving.value = false;
+      alert('Нет изменений для сохранения.');
+      return;
+    }
+
+    await $fetch(`/distant-api/state/${original.uuid}`, {
+      method: 'POST', // или 'PATCH', если поддерживается частичное обновление
       body: formData,
     });
 
-    if(fetchStateData) {
+    if (fetchStateData) {
       await fetchStateData();
     }
 
@@ -308,11 +361,12 @@ async function saveChanges() {
 
   } catch (error: any) {
     console.error("Ошибка при сохранении изменений:", error);
-    alert(`Ошибка: ${error.data?.data.statusMessage || error.message}`);
+    alert(`Ошибка: ${error.data?.data?.statusMessage || error.message}`);
   } finally {
     isSaving.value = false;
   }
 }
+
 
 // --- Жизненный цикл ---
 onMounted(() => {
