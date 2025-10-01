@@ -1,6 +1,6 @@
 <!-- pages/states/index.vue -->
 <script setup lang="ts">
-import type { IState } from '@/types/state.types'
+import type { IState } from '~/types/state.types'
 import StateCard from "~/components/states/StateCard.vue";
 
 definePageMeta({

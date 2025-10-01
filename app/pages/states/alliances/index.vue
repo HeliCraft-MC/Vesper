@@ -5,8 +5,8 @@ import {
   type IAlliance,
   AlliencePurpose,
   AllianceStatus
-} from '@/types/diplomacy.types'
-import type { IState } from '@/types/state.types'
+} from '~/types/diplomacy.types'
+import type { IState } from '~/types/state.types'
 
 definePageMeta({ auth: false })
 
