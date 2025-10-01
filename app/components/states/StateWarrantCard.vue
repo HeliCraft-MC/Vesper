@@ -1,7 +1,7 @@
 <!-- components/states/StateWarrantCard.vue -->
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { IStateWarrant } from '@/types/state.types'
+import type { IStateWarrant } from '~/types/state.types'
 
 const props = defineProps<{
   warrant: IStateWarrant,

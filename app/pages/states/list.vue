@@ -1,7 +1,7 @@
 <!-- pages/states/list/.vue -->
 <script setup lang="ts">
 import StateCard from '@/components/states/StateCard.vue'
-import type { IState } from '@/types/state.types'
+import type { IState } from '~/types/state.types'
 
 definePageMeta({ auth: false })
 

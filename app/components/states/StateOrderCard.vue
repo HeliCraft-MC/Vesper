@@ -1,7 +1,7 @@
 <!-- components/states/StateOrderCard.vue -->
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { IStateOrder } from '@/types/state.types'
+import type { IStateOrder } from '~/types/state.types'
 
 // Define props and emits
 const props = defineProps<{

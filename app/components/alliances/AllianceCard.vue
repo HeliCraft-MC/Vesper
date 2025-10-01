@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { type IAlliance, AlliencePurpose, AllianceStatus } from '@/types/diplomacy.types'
+import { type IAlliance, AlliencePurpose, AllianceStatus } from '~/types/diplomacy.types'
 
 const props = defineProps<{
   alliance: IAlliance

@@ -14,7 +14,7 @@
     "@cafestube/minecraft-banner-renderer": "^1.0.4",
     "@vueuse/nuxt": "13.3.0",
     "better-sqlite3": "^12.2.0",
-    "nuxt": "^3.17.5",
+    "nuxt": "^4.1.2",
     "pathe": "^2.0.3",
     "skinview3d": "^3.4.1",
     "vue": "^3.5.14",
