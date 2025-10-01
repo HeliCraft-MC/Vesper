@@ -1,4 +1,4 @@
-import type { IBaseEntity } from '~/app/types/common.types';
+import type { IBaseEntity } from '~/types/common.types';
 
 /* ────────────────────────────────────────────────────────────── */
 /*  Перечисления, описывающие государство и роли                  */
