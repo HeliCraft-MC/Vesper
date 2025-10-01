@@ -161,8 +161,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, provide, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import type { IState, IStateMember } from '~/app/types/state.types';
-import { RolesInState as RolesEnum, type RolesInState } from '~/app/types/state.types';
+import type { IState, IStateMember } from '~/types/state.types';
+import { RolesInState as RolesEnum, type RolesInState } from '~/types/state.types';
 
 useHead({ bodyAttrs: { class: 'bg-black text-white' } });
 
