@@ -42,9 +42,8 @@ export default defineNuxtConfig({
     public: {
       backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'https://api.helicraft.ru',
       planApiURL: process.env.NUXT_PUBLIC_PLAN_API_URL || 'https://analytics.helicraft.ru',
-
-
-        vesperCommit: process.env.NODE_COMMIT || 'unknown', //frontend software commit
+      banlistEnabled: process.env.NUXT_PUBLIC_BANLIST_ENABLED !== 'false',
+      vesperCommit: process.env.NODE_COMMIT || 'unknown', //frontend software commit
     },
     turnstile: {
       // This can be overridden at runtime via the NUXT_TURNSTILE_SECRET_KEY
