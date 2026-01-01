@@ -27,7 +27,7 @@ const isStatesDisabled = useRuntimeConfig().public.statesDisabled
       <PlayerCard />
       <SkinCard />
       <StatsCard />
-      <NationsCard v-show="!isStatesDisabled" />
+      <NationsCard v-if="!isStatesDisabled" />
 
       <!-- Выход -->
       <div class="text-center">
