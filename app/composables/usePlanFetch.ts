@@ -1,58 +1,65 @@
-// composables/usePlanFetch.ts
-import { ofetch } from 'ofetch'
-import { useRuntimeConfig } from '#imports'
-const config = useRuntimeConfig()
+import { ofetch, type FetchOptions } from 'ofetch'
 
 type PlanError = Error & { status?: number; cause?: unknown }
 
+// Мы работаем только с JSON
+type PlanFetchOptions = Omit<FetchOptions<'json'>, 'responseType'> & { responseType?: 'json' }
+
 let _client: ReturnType<typeof ofetch.create> | null = null
+let _baseURL: string | null = null
 
-function getClient () {
-    if (_client) return _client
+export function usePlanFetch() {
+    // ВАЖНО: runtime config читаем ВНУТРИ setup (тут ok),
+    // и создаём клиент здесь же, чтобы дальше в кликах не дергать Nuxt composables.
+    const { public: { planApiURL } } = useRuntimeConfig()
 
-    _client = ofetch.create({
-        baseURL: config.public.planApiURL || 'https://analytics.helicraft.ru',
-        credentials: 'include',     // шлём куки, если браузер их всё-таки отправляет
-        redirect: 'error',          // не следуем за 30x — пусть бросает ошибку
-        mode: 'cors',
+    // Если хочешь реально использовать прокси — лучше '/plan-api'
+    // (у тебя он в nitro.routeRules есть)
+    const baseURL = planApiURL || '/plan-api'
 
-        // 2xx ответы
-        onResponse({ response }) {
-            const ct = response.headers.get('content-type') || ''
-            // если вдруг прилетела HTML-страница (UI) или ответ помечен как redirected — считаем, что нужна авторизация на Plan
-            if (response.redirected || ct.includes('text/html') || response.status == 302 || response.status == 301) {
-                const err: PlanError = new Error('PLAN_REDIRECT_OR_HTML')
-                err.name = 'PlanAuthRequired'
-                err.status = response.status && response.status !== 200 ? response.status : 401
+    if (!_client || _baseURL !== baseURL) {
+        _baseURL = baseURL
+
+        _client = ofetch.create({
+            baseURL,
+            credentials: 'include',
+            responseType: 'json',
+
+            onResponse({ response }) {
+                const ct = response.headers.get('content-type') || ''
+
+                // Если вместо JSON пришёл HTML/редирект — значит Plan отправил на UI логина
+                if (response.redirected || ct.includes('text/html') || response.status === 301 || response.status === 302) {
+                    const err: PlanError = new Error('PLAN_REDIRECT_OR_HTML')
+                    err.name = 'PlanAuthRequired'
+                    err.status = response.status !== 200 ? response.status : 401
+                    throw err
+                }
+            },
+
+            onResponseError({ response }) {
+                const ct = response?.headers?.get?.('content-type') || ''
+
+                if (response?.status === 401 || response?.status === 403 || ct.includes('text/html')) {
+                    const err: PlanError = new Error('PLAN_UNAUTHORIZED_OR_HTML')
+                    err.name = 'PlanAuthRequired'
+                    err.status = response?.status || 401
+                    throw err
+                }
+            },
+
+            onRequestError({ error }) {
+                const err: PlanError = new Error('PLAN_NETWORK_ERROR')
+                err.name = 'PlanNetworkError'
+                err.cause = error
+                err.status = 0
                 throw err
-            }
-        },
+            },
+        })
+    }
 
-        // 4xx/5xx
-        onResponseError({ response }) {
-            const ct = response?.headers?.get?.('content-type') || ''
-            if (ct.includes('text/html')) {
-                const err: PlanError = new Error('PLAN_REDIRECT_OR_HTML')
-                err.name = 'PlanAuthRequired'
-                err.status = response?.status || 401
-                throw err
-            }
-            // остальное пусть упадёт как есть (ofetch уже бросает)
-        },
+    const client = _client
 
-        // сетевые/CORS/redirect:'error' ошибки (fetch-reject)
-        onRequestError({ error }) {
-            const err: PlanError = new Error('PLAN_NETWORK_OR_REDIRECT_BLOCKED')
-            err.name = 'PlanNetworkError'
-            err.cause = error
-            err.status = 0
-            throw err
-        }
-    })
-
-    return _client
-}
-
-export function usePlanFetch<T = any>(endpoint: string, opts: any = {}) {
-    return getClient()<T>(endpoint, opts)
+    // Возвращаем обычную функцию-запрос, без Nuxt composables внутри.
+    return <T = any>(endpoint: string, opts: PlanFetchOptions = {}) => client<T>(endpoint, opts)
 }
