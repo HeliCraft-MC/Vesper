@@ -39,9 +39,10 @@ export default defineNuxtConfig({
   ],
   css: ['~/assets/css/fonts.css'],
   runtimeConfig: {
+    planUpstreamURL: process.env.PLAN_UPSTREAM_URL || 'https://analytics.helicraft.ru',
     public: {
       backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'https://api.helicraft.ru',
-      planApiURL: process.env.NUXT_PUBLIC_PLAN_API_URL || 'https://analytics.helicraft.ru',
+      planApiURL: '/plan-api',
 
 
         vesperCommit: process.env.NODE_COMMIT || 'unknown', //frontend software commit
