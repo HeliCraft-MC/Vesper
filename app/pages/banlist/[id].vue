@@ -1,8 +1,9 @@
 <!-- pages/banlist/[id].vue -->
 <script setup lang="ts">
-import type { IBan } from '~/types/banlist.types'
+import type { IBan, IBanListResponse } from '~/types/banlist.types'
 import TimeFormatToggle from '~/components/ui/TimeFormatToggle.vue'
 import { useTimeFormat } from '~/composables/useTimeFormat'
+import { getBanStatus, getBanDuration, getBanUntilText, readBanField } from '~/utils/banlist.utils'
 
 definePageMeta({ auth: false })
 
@@ -34,26 +35,35 @@ const showRemoveModal = ref(false)
 
 const { formatTime, formatAbsoluteTime } = useTimeFormat()
 
+/* ───── Вспомогательные функции ───── */
+function formatSpecialName(name: string | null): string {
+  if (!name) return '—'
+  if (name === '#expired') return 'Автоистечение'
+  if (name === '[Console]' || name === 'Console' || name === 'CONSOLE') return 'Консоль'
+  if (name?.startsWith('[')) return name.slice(1, -1)
+  return name
+}
+
+function getPlayerNickname(ban: IBan | null): string {
+  if (!ban) return '—'
+  return ban.uuid_nickname || ban.uuid.slice(0, 8)
+}
+
 /* ───── Загрузка данных о бане ───── */
 async function loadBan() {
   loading.value = true
   error.value = ''
 
   try {
-    // Загружаем список с фильтром по ID (через поиск)
-    const data = await useApiFetch<{ items: IBan[], total: number }>('/banlist', {
-      query: { limit: 100, offset: 0 }
+    // Используем query параметр id для загрузки конкретного бана
+    const data = await useApiFetch<IBanListResponse>('/banlist', {
+      query: { id: banId.value }
     })
 
-    if (data.data.value) {
-      const foundBan = data.data.value.items.find(b => b.id === Number(banId.value))
-      if (foundBan) {
-        ban.value = foundBan
-      } else {
-        error.value = 'Бан не найден'
-      }
-    } else if (data.error.value) {
-      throw new Error(data.error.value.message || 'Не удалось загрузить информацию о бане')
+    if (data.data.value && data.data.value.items && data.data.value.items.length > 0) {
+      ban.value = data.data.value.items[0]
+    } else {
+      error.value = 'Бан не найден'
     }
   } catch (e: any) {
     error.value = e.message || 'Произошла ошибка при загрузке данных'
@@ -115,27 +125,15 @@ async function removeBan() {
 
 /* ───── Вспомогательные функции ───── */
 function getStatusColor(ban: IBan): string {
-  if (ban.active === 0) return 'text-gray-500'
-  if (ban.until === -1) return 'text-red-500'
-  if (ban.until > Date.now()) return 'text-yellow-500'
-  return 'text-green-500'
+  return getBanStatus(ban).color
 }
 
 function getStatusText(ban: IBan): string {
-  if (ban.active === 0) return 'Снят'
-  if (ban.until === -1) return 'Перманентный'
-  if (ban.until > Date.now()) return 'Активен'
-  return 'Истёк'
+  return getBanStatus(ban).text
 }
 
 function getDuration(ban: IBan): string {
-  if (ban.until === -1) return 'Перманентно'
-  const duration = ban.until - ban.time
-  const days = Math.floor(duration / (1000 * 60 * 60 * 24))
-  const hours = Math.floor((duration % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-
-  if (days > 0) return `${days} дн. ${hours} ч.`
-  return `${hours} ч.`
+  return getBanDuration(ban)
 }
 
 /* ───── Инициализация ───── */
@@ -199,16 +197,17 @@ onMounted(async () => {
 
           <!-- Информация -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- UUID игрока -->
-            <div>
-              <label class="block text-sm text-gray-400 mb-2">UUID игрока</label>
-              <NuxtLink
-                  :to="`/player/${ban.uuid}`"
-                  class="font-mono text-red-400 hover:text-red-300 transition break-all"
-              >
-                {{ ban.uuid }}
-              </NuxtLink>
-            </div>
+          <!-- Никнейм игрока -->
+          <div>
+            <label class="block text-sm text-gray-400 mb-2">Никнейм игрока</label>
+            <NuxtLink
+                :to="`/player/${ban.uuid}`"
+                class="text-red-400 hover:text-red-300 transition font-bold text-lg"
+            >
+              {{ getPlayerNickname(ban) }}
+            </NuxtLink>
+            <div class="font-mono text-xs text-gray-500 mt-1">{{ ban.uuid }}</div>
+          </div>
 
             <!-- IP адрес -->
             <div v-if="ban.ip">
@@ -219,7 +218,7 @@ onMounted(async () => {
             <!-- Администратор -->
             <div>
               <label class="block text-sm text-gray-400 mb-2">Выдал бан</label>
-              <div class="text-white">{{ ban.banned_by_name }}</div>
+              <div class="text-white font-semibold">{{ ban.banned_by_name }}</div>
               <div class="font-mono text-xs text-gray-500 mt-1">{{ ban.banned_by_uuid }}</div>
             </div>
 
@@ -247,13 +246,13 @@ onMounted(async () => {
             <div class="md:col-span-2">
               <label class="block text-sm text-gray-400 mb-2">Тип бана</label>
               <div class="flex gap-3">
-                <span v-if="ban.ipban === 1" class="px-3 py-1 bg-red-900/50 border border-red-500/50 rounded-md text-red-300 text-sm">
+                <span v-if="readBanField(ban.ipban) === 1" class="px-3 py-1 bg-red-900/50 border border-red-500/50 rounded-md text-red-300 text-sm">
                   IP Ban
                 </span>
-                <span v-if="ban.silent === 1" class="px-3 py-1 bg-purple-900/50 border border-purple-500/50 rounded-md text-purple-300 text-sm">
+                <span v-if="readBanField(ban.silent) === 1" class="px-3 py-1 bg-purple-900/50 border border-purple-500/50 rounded-md text-purple-300 text-sm">
                   Скрытый
                 </span>
-                <span v-if="ban.ipban === 0 && ban.silent === 0" class="px-3 py-1 bg-gray-800/50 border border-gray-600/50 rounded-md text-gray-300 text-sm">
+                <span v-if="readBanField(ban.ipban) === 0 && readBanField(ban.silent) === 0" class="px-3 py-1 bg-gray-800/50 border border-gray-600/50 rounded-md text-gray-300 text-sm">
                   Обычный
                 </span>
               </div>
@@ -270,7 +269,7 @@ onMounted(async () => {
         </section>
 
         <!-- Информация о снятии бана -->
-        <section v-if="ban.active === 0" class="bg-gray-900/60 backdrop-blur-lg rounded-lg p-6 space-y-4">
+        <section v-if="ban.removed_by_uuid" class="bg-gray-900/60 backdrop-blur-lg rounded-lg p-6 space-y-4">
           <h2 class="text-xl font-bold flex items-center gap-2">
             <Icon name="solar:check-circle-bold" class="w-6 h-6 text-green-500" />
             Бан снят
@@ -280,7 +279,9 @@ onMounted(async () => {
             <!-- Кто снял -->
             <div>
               <label class="block text-sm text-gray-400 mb-2">Снял бан</label>
-              <div class="text-white">{{ ban.removed_by_name || '—' }}</div>
+              <div class="text-white font-semibold">
+                {{ formatSpecialName(ban.removed_by_name) }}
+              </div>
               <div v-if="ban.removed_by_uuid" class="font-mono text-xs text-gray-500 mt-1">
                 {{ ban.removed_by_uuid }}
               </div>
@@ -289,7 +290,8 @@ onMounted(async () => {
             <!-- Дата снятия -->
             <div>
               <label class="block text-sm text-gray-400 mb-2">Дата снятия</label>
-              <div class="text-white">{{ ban.removed_by_date || '—' }}</div>
+              <div class="text-white">{{ ban.removed_by_date ? new Date(ban.removed_by_date).toLocaleDateString('ru-RU') : '—' }}</div>
+              <div class="text-xs text-gray-500 mt-1">{{ ban.removed_by_date ? formatTime(new Date(ban.removed_by_date).getTime()) : '—' }}</div>
             </div>
 
             <!-- Причина снятия -->
@@ -303,7 +305,7 @@ onMounted(async () => {
         </section>
 
         <!-- Кнопка снятия бана (для админов) -->
-        <section v-if="isAdmin && ban.active === 1" class="bg-gray-900/60 backdrop-blur-lg rounded-lg p-6">
+        <section v-if="isAdmin && readBanField(ban.active) === 1" class="bg-gray-900/60 backdrop-blur-lg rounded-lg p-6">
           <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
             <Icon name="solar:shield-user-bold-duotone" class="w-6 h-6 text-red-500" />
             Панель администратора

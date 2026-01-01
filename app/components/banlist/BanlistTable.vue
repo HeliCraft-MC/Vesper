@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import type { IBan } from '~/types/banlist.types'
 import { useTimeFormat } from '~/composables/useTimeFormat'
+import { getBanStatus } from '~/utils/banlist.utils'
 
 const props = defineProps<{
   bans: IBan[]
@@ -10,24 +11,25 @@ const props = defineProps<{
 
 const { formatTime } = useTimeFormat()
 
-function getStatusColor(ban: IBan): string {
-  if (ban.active === 0) return 'text-gray-500'
-  if (ban.until === -1) return 'text-red-500'
-  if (ban.until > Date.now()) return 'text-yellow-500'
-  return 'text-green-500'
+/* ───── Вспомогательные функции ───── */
+function getPlayerNickname(ban: IBan): string {
+  return ban.uuid_nickname || ban.uuid.slice(0, 8)
 }
 
-function getStatusText(ban: IBan): string {
-  if (ban.active === 0) return 'Снят'
-  if (ban.until === -1) return 'Перманентный'
-  if (ban.until > Date.now()) return 'Активен'
-  return 'Истёк'
+function formatSpecialName(name: string | null): string {
+  if (!name) return '—'
+  if (name === '#expired') return 'Автоистечение'
+  if (name === '[Console]' || name === 'Console' || name === 'CONSOLE') return 'Консоль'
+  if (name?.startsWith('[')) return name.slice(1, -1)
+  return name
 }
 
-function formatUuid(uuid: string): string {
-  // Показываем сокращённый UUID (первые 8 символов)
-  return uuid.slice(0, 8) + '...'
+function formatRemovedDate(date: string | null): string {
+  if (!date) return '—'
+  return new Date(date).toLocaleDateString('ru-RU')
 }
+
+
 </script>
 
 <template>
@@ -35,17 +37,18 @@ function formatUuid(uuid: string): string {
     <table class="w-full">
       <thead>
         <tr class="border-b border-gray-800">
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">UUID Игрока</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Никнейм</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Причина</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Администратор</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Дата бана</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Истекает</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Снят кем</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Статус</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="loading" class="border-b border-gray-800/60">
-          <td colspan="6" class="px-4 py-8 text-center text-gray-400">
+          <td colspan="7" class="px-4 py-8 text-center text-gray-400">
             <div class="flex justify-center items-center gap-3">
               <div class="w-6 h-6 border-4 border-gray-600 border-t-red-500 rounded-full animate-spin"></div>
               <span>Загрузка...</span>
@@ -53,7 +56,7 @@ function formatUuid(uuid: string): string {
           </td>
         </tr>
         <tr v-else-if="!bans.length" class="border-b border-gray-800/60">
-          <td colspan="6" class="px-4 py-8 text-center text-gray-400">
+          <td colspan="7" class="px-4 py-8 text-center text-gray-400">
             Банов не найдено
           </td>
         </tr>
@@ -63,14 +66,14 @@ function formatUuid(uuid: string): string {
             :key="ban.id"
             class="border-b border-gray-800/60 hover:bg-gray-900/50 transition-colors"
         >
-          <!-- UUID с ссылкой на профиль игрока -->
+          <!-- Никнейм игрока -->
           <td class="px-4 py-3">
             <NuxtLink
                 :to="`/player/${ban.uuid}`"
-                class="text-red-400 hover:text-red-300 transition font-mono text-sm"
-                :title="ban.uuid"
+                class="text-red-400 hover:text-red-300 transition font-semibold"
+                :title="`UUID: ${ban.uuid}`"
             >
-              {{ formatUuid(ban.uuid) }}
+              {{ getPlayerNickname(ban) }}
             </NuxtLink>
           </td>
 
@@ -81,7 +84,7 @@ function formatUuid(uuid: string): string {
             </div>
           </td>
 
-          <!-- Администратор -->
+          <!-- Администратор, выдавший бан -->
           <td class="px-4 py-3">
             <div class="text-gray-400 text-sm">
               {{ ban.banned_by_name }}
@@ -102,16 +105,25 @@ function formatUuid(uuid: string): string {
             </div>
           </td>
 
+          <!-- Снят кем и когда -->
+          <td class="px-4 py-3">
+            <div v-if="ban.removed_by_name" class="text-gray-400 text-sm">
+              <div>{{ formatSpecialName(ban.removed_by_name) }}</div>
+              <div class="text-xs text-gray-500 mt-1">
+                {{ formatRemovedDate(ban.removed_by_date) }}
+              </div>
+            </div>
+            <div v-else class="text-gray-500 text-sm">—</div>
+          </td>
+
           <!-- Статус -->
           <td class="px-4 py-3">
-            <NuxtLink
-                :to="`/banlist/${ban.id}`"
+            <div
                 class="inline-flex items-center gap-1 text-sm font-medium transition"
-                :class="getStatusColor(ban)"
+                :class="getBanStatus(ban).color"
             >
-              <span>{{ getStatusText(ban) }}</span>
-              <Icon name="solar:arrow-right-line-duotone" class="w-4 h-4" />
-            </NuxtLink>
+              <span>{{ getBanStatus(ban).text }}</span>
+            </div>
           </td>
         </tr>
       </tbody>

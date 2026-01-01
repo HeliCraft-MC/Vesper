@@ -7,7 +7,7 @@ export function useApiFetch<T = any> (
     options: UseFetchOptions<T> = {}
 ) {
     const config = useRuntimeConfig()
-    const { token } = useAuth()                              // token.value → Bearer
+    const { token } = useAuth()
 
     const defaults: UseFetchOptions<T> = {
         baseURL: config.public.backendURL,

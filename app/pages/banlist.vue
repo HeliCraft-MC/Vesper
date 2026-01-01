@@ -3,10 +3,12 @@
 import type { IBanListResponse } from '~/types/banlist.types'
 import BanlistTable from '~/components/banlist/BanlistTable.vue'
 import TimeFormatToggle from '~/components/ui/TimeFormatToggle.vue'
+import AdminCleanSkinsPanel from '~/components/banlist/AdminCleanSkinsPanel.vue'
 
 definePageMeta({ auth: false })
 
 const config = useRuntimeConfig()
+const { data: session } = useAuth()
 
 // Проверка, включён ли банлист
 if (!config.public.banlistEnabled) {
@@ -16,6 +18,8 @@ if (!config.public.banlistEnabled) {
   })
 }
 
+const userUuid = computed(() => session.value?.uuid)
+
 /* ───── Состояние ───── */
 const searchQuery = ref('')
 const activeFilter = ref<'all' | 'active' | 'inactive'>('all')
@@ -23,6 +27,8 @@ const limit = ref(20)
 const offset = ref(0)
 const loading = ref(true)
 const error = ref('')
+const isAdmin = ref(false)
+const checkingAdmin = ref(false)
 
 const banlistData = ref<IBanListResponse>({ items: [], total: 0 })
 
@@ -96,9 +102,27 @@ watch(limit, () => {
 })
 
 /* ───── Инициализация ───── */
-onMounted(() => {
-  loadBanlist()
+onMounted(async () => {
+  await Promise.all([loadBanlist(), checkAdminStatus()])
 })
+
+/* ───── Проверка админ-статуса ───── */
+async function checkAdminStatus() {
+  if (!userUuid.value) {
+    isAdmin.value = false
+    return
+  }
+
+  checkingAdmin.value = true
+  try {
+    isAdmin.value = await $fetch<boolean>(`/distant-api/user/${userUuid.value}/isAdmin`)
+  } catch (e) {
+    console.error('Ошибка проверки админ-статуса:', e)
+    isAdmin.value = false
+  } finally {
+    checkingAdmin.value = false
+  }
+}
 </script>
 
 <template>
@@ -178,6 +202,9 @@ onMounted(() => {
       <section class="bg-gray-900/60 backdrop-blur-lg rounded-lg overflow-hidden">
         <BanlistTable :bans="banlistData.items" :loading="loading" />
       </section>
+
+      <!-- Панель администратора -->
+      <AdminCleanSkinsPanel v-if="isAdmin && !checkingAdmin" :is-admin="isAdmin" />
 
       <!-- Пагинация -->
       <nav v-if="!loading && totalPages > 1" class="flex items-center justify-between">

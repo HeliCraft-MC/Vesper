@@ -9,34 +9,28 @@ export interface IBan {
     /** UUID забанного игрока (без дефисов) */
     uuid: string;
 
-    /** IP адрес (может быть null) */
-    ip: string | null;
+    /** Никнейм забанного игрока (из API) */
+    uuid_nickname?: string;
 
     /** Причина бана */
     reason: string;
 
-    /** UUID администратора, выдавшего бан */
-    banned_by_uuid: string;
-
-    /** Никнейм администратора, выдавшего бан */
+    /** Имя администратора, выдавшего бан */
     banned_by_name: string;
 
-    /** UUID администратора, снявшего бан (null если активен) */
-    removed_by_uuid: string | null;
-
-    /** Никнейм, снявший бан (null если активен) */
+    /** Имя того, кто снял бан (null если активен или истёк) */
     removed_by_name: string | null;
 
-    /** Причина снятия (null если активен) */
+    /** Причина снятия бана (null если активен) */
     removed_by_reason: string | null;
 
-    /** Дата/время снятия (null если активен) */
+    /** Дата/время снятия бана (null если активен) */
     removed_by_date: string | null;
 
     /** Время создания бана (timestamp в ms) */
     time: number;
 
-    /** Время окончания бана (timestamp в ms); -1 = вечный */
+    /** Время окончания бана (timestamp в ms); -1 или 0 = вечный */
     until: number;
 
     /** ID шаблона (255 = без шаблона) */
@@ -45,20 +39,14 @@ export interface IBan {
     /** Область применения бана (всегда "*") */
     server_scope: string;
 
-    /** Сервер-источник бана (null) */
-    server_origin: string | null;
+    /** 1 = скрытый бан, 0 = обычный (может быть number или Buffer с data) */
+    silent: number | { type: string; data: number[] };
 
-    /** 1 = скрытый бан, 0 = обычный */
-    silent: number;
+    /** 1 = IP бан, 0 = обычный (может быть number или Buffer с data) */
+    ipban: number | { type: string; data: number[] };
 
-    /** 1 = IP бан, 0 = обычный */
-    ipban: number;
-
-    /** 1 = wildcard IP бан, 0 = нет */
-    ipban_wildcard: number;
-
-    /** 1 = активный бан, 0 = снят */
-    active: number;
+    /** 1 = active бан, 0 = снят (может быть number или Buffer с data) */
+    active: number | { type: string; data: number[] };
 }
 
 export interface IBanListResponse {
