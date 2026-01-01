@@ -36,7 +36,7 @@
             <span class="truncate">Правила сервера</span>
           </NuxtLink>
         </li>
-        <li v-show="!isStatesDisabled">
+        <li v-if="!isStatesDisabled">
           <NuxtLink
               to="/states"
               class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
