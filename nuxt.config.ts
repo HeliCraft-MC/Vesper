@@ -58,8 +58,7 @@ export default defineNuxtConfig({
       backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'https://api.helicraft.ru',
       planApiURL: process.env.NUXT_PUBLIC_PLAN_API_URL || 'https://analytics.helicraft.ru',
       statesDisabled: process.env.VESPER_DISABLE_STATE_LOGIC ? process.env.VESPER_DISABLE_STATE_LOGIC === 'true' : true,
-
-
+      banlistEnabled: process.env.NUXT_PUBLIC_BANLIST_ENABLED !== 'false',
       vesperCommit: process.env.NODE_COMMIT || 'unknown', //frontend software commit
     },
     turnstile: {

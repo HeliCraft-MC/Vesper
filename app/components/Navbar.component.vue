@@ -45,6 +45,15 @@
             <span class="truncate">Государства</span>
           </NuxtLink>
         </li>
+        <li v-if="banlistEnabled">
+          <NuxtLink
+              to="/banlist"
+              class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
+          >
+            <Icon name="solar:shield-warning-bold-duotone" class="w-5 h-5" />
+            <span class="truncate">Банлист</span>
+          </NuxtLink>
+        </li>
 
         <!-- Авторизация -->
         <li v-if="isLoggedIn">
@@ -124,6 +133,16 @@
               <span class="truncate">Государства</span>
             </NuxtLink>
           </li>
+          <li v-if="banlistEnabled">
+            <NuxtLink
+                to="/banlist"
+                class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
+                @click="closeMobileMenu"
+            >
+              <Icon name="solar:shield-warning-bold-duotone" class="w-5 h-5" />
+              <span class="truncate">Банлист</span>
+            </NuxtLink>
+          </li>
           <li v-if="isLoggedIn">
             <NuxtLink
                 to="/account"
@@ -165,6 +184,9 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '#imports'
+
+const config = useRuntimeConfig()
+const banlistEnabled = computed(() => config.public.banlistEnabled)
 
 const showMobileMenu = ref(false)
 const { status, data, signOut } = useAuth()
