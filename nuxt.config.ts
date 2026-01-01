@@ -57,7 +57,7 @@ export default defineNuxtConfig({
     public: {
       backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'https://api.helicraft.ru',
       planApiURL: process.env.NUXT_PUBLIC_PLAN_API_URL || 'https://analytics.helicraft.ru',
-      statesDisabled: process.env.VESPER_DISABLE_STATE_LOGIC || true,
+      statesDisabled: process.env.VESPER_DISABLE_STATE_LOGIC ? process.env.VESPER_DISABLE_STATE_LOGIC === 'true' : true,
 
 
       vesperCommit: process.env.NODE_COMMIT || 'unknown', //frontend software commit
@@ -71,7 +71,7 @@ export default defineNuxtConfig({
   // DISABLE /states ROUTES
   hooks: {
     'pages:extend'(pages) {
-      if (useRuntimeConfig().public.statesDisabled) {
+      if (process.env.VESPER_DISABLE_STATE_LOGIC ? process.env.VESPER_DISABLE_STATE_LOGIC === 'true' : true) {
         removeStatesRoutes(pages)
       }
     },
