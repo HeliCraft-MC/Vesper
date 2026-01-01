@@ -36,13 +36,22 @@
             <span class="truncate">Правила сервера</span>
           </NuxtLink>
         </li>
-        <li>
+        <li v-if="!isStatesDisabled">
           <NuxtLink
               to="/states"
               class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
           >
             <Icon name="solar:shield-minimalistic-bold-duotone" class="w-5 h-5" />
             <span class="truncate">Государства</span>
+          </NuxtLink>
+        </li>
+        <li v-if="banlistEnabled">
+          <NuxtLink
+              to="/banlist"
+              class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
+          >
+            <Icon name="solar:shield-warning-bold-duotone" class="w-5 h-5" />
+            <span class="truncate">Банлист</span>
           </NuxtLink>
         </li>
 
@@ -114,7 +123,7 @@
               <span class="truncate">Правила сервера</span>
             </NuxtLink>
           </li>
-          <li>
+          <li v-if="!isStatesDisabled">
             <NuxtLink
                 to="/states"
                 class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
@@ -122,6 +131,16 @@
             >
               <Icon name="solar:shield-minimalistic-bold-duotone" class="w-5 h-5" />
               <span class="truncate">Государства</span>
+            </NuxtLink>
+          </li>
+          <li v-if="banlistEnabled">
+            <NuxtLink
+                to="/banlist"
+                class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
+                @click="closeMobileMenu"
+            >
+              <Icon name="solar:shield-warning-bold-duotone" class="w-5 h-5" />
+              <span class="truncate">Банлист</span>
             </NuxtLink>
           </li>
           <li v-if="isLoggedIn">
@@ -166,11 +185,16 @@ import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuth } from '#imports'
 
+const config = useRuntimeConfig()
+const banlistEnabled = computed(() => config.public.banlistEnabled)
+
 const showMobileMenu = ref(false)
 const { status, data, signOut } = useAuth()
 const isLoggedIn = computed(() => status.value === 'authenticated')
 const nickname   = computed(() => data.value?.nickname || '')
 const origin     = process.client ? window.location.origin : ''
+
+const isStatesDisabled = useRuntimeConfig().public.statesDisabled
 
 function toggleMobileMenu () {
   showMobileMenu.value = !showMobileMenu.value

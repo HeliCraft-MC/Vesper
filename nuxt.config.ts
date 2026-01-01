@@ -1,4 +1,19 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+function removeStatesRoutes(pages: any) {
+  for (let i = pages.length - 1; i >= 0; i--) {
+    const page = pages[i]
+
+    if (page.children?.length) {
+      removeStatesRoutes(page.children)
+    }
+
+    if (page.path === '/states' || page.path.startsWith('/states/')) {
+      pages.splice(i, 1)
+    }
+  }
+}
+
 export default defineNuxtConfig({
 
     app: {
@@ -43,14 +58,22 @@ export default defineNuxtConfig({
     public: {
       backendURL: process.env.NUXT_PUBLIC_BACKEND_URL || 'https://api.helicraft.ru',
       planApiURL: '/plan-api',
-
-
-        vesperCommit: process.env.NODE_COMMIT || 'unknown', //frontend software commit
+      statesDisabled: process.env.VESPER_DISABLE_STATE_LOGIC ? process.env.VESPER_DISABLE_STATE_LOGIC === 'true' : true,
+      banlistEnabled: process.env.NUXT_PUBLIC_BANLIST_ENABLED !== 'false',
+      vesperCommit: process.env.NODE_COMMIT || 'unknown', //frontend software commit
     },
     turnstile: {
       // This can be overridden at runtime via the NUXT_TURNSTILE_SECRET_KEY
       // environment variable.
       secretKey: process.env.NUXT_TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA',
+    },
+  },
+  // DISABLE /states ROUTES
+  hooks: {
+    'pages:extend'(pages) {
+      if (process.env.VESPER_DISABLE_STATE_LOGIC ? process.env.VESPER_DISABLE_STATE_LOGIC === 'true' : true) {
+        removeStatesRoutes(pages)
+      }
     },
   },
   icon: {

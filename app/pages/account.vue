@@ -17,6 +17,8 @@ const signOutPage = async () => {
     console.error('Ошибка при выходе:', error)
   }
 }
+
+const isStatesDisabled = useRuntimeConfig().public.statesDisabled
 </script>
 
 <template>
@@ -25,7 +27,7 @@ const signOutPage = async () => {
       <PlayerCard />
       <SkinCard />
       <StatsCard />
-      <NationsCard />
+      <NationsCard v-if="!isStatesDisabled" />
 
       <!-- Выход -->
       <div class="text-center">
