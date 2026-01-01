@@ -36,7 +36,7 @@
             <span class="truncate">Правила сервера</span>
           </NuxtLink>
         </li>
-        <li>
+        <li v-if="!isStatesDisabled">
           <NuxtLink
               to="/states"
               class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
@@ -123,7 +123,7 @@
               <span class="truncate">Правила сервера</span>
             </NuxtLink>
           </li>
-          <li>
+          <li v-if="!isStatesDisabled">
             <NuxtLink
                 to="/states"
                 class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
@@ -193,6 +193,8 @@ const { status, data, signOut } = useAuth()
 const isLoggedIn = computed(() => status.value === 'authenticated')
 const nickname   = computed(() => data.value?.nickname || '')
 const origin     = process.client ? window.location.origin : ''
+
+const isStatesDisabled = useRuntimeConfig().public.statesDisabled
 
 function toggleMobileMenu () {
   showMobileMenu.value = !showMobileMenu.value
