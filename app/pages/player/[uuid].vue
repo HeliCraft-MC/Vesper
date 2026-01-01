@@ -52,7 +52,7 @@ async function loadPlayerBans() {
 
   try {
     // Загружаем все баны и фильтруем по UUID
-    const data = await useApiFetch<{ items: IBan[], total: number }>('/api/banlist', {
+    const data = await useApiFetch<{ items: IBan[], total: number }>('/banlist', {
       query: { limit: 1000, offset: 0, q: playerUuid.value }
     })
 

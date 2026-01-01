@@ -41,7 +41,7 @@ async function loadBan() {
 
   try {
     // Загружаем список с фильтром по ID (через поиск)
-    const data = await useApiFetch<{ items: IBan[], total: number }>('/api/banlist', {
+    const data = await useApiFetch<{ items: IBan[], total: number }>('/banlist', {
       query: { limit: 100, offset: 0 }
     })
 

@@ -51,7 +51,7 @@ async function loadBanlist() {
       query.active = 'false'
     }
 
-    const data = await useApiFetch<IBanListResponse>('/api/banlist', {
+    const data = await useApiFetch<IBanListResponse>('/banlist', {
       query
     })
 
