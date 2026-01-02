@@ -28,7 +28,6 @@ const cleanSkinsForm = reactive({
 
 // Форма создания бана
 const createBanForm = reactive({
-  playerUuid: '',
   playerNickname: '',
   reason: '',
   duration: 'permanent',
@@ -105,8 +104,8 @@ async function cleanSkins() {
 
 /* ───── Создание бана ───── */
 async function createBan() {
-  if (!createBanForm.playerUuid.trim()) {
-    error.value = 'Укажите UUID игрока'
+  if (!createBanForm.playerNickname.trim()) {
+    error.value = 'Укажите ник игрока'
     return
   }
   if (!createBanForm.reason.trim()) {
@@ -124,7 +123,7 @@ async function createBan() {
     const { error: fetchError } = await useApiFetch('banlist', {
       method: 'POST',
       body: {
-        uuid: createBanForm.playerUuid.trim(),
+        target: createBanForm.playerNickname.trim(),
         reason: createBanForm.reason.trim(),
         duration: durationMs,
         ipban: createBanForm.isIpBan ? 1 : 0,
@@ -139,7 +138,6 @@ async function createBan() {
     success.value = 'Бан успешно создан!'
     showCreateBanModal.value = false
     // Сброс формы
-    createBanForm.playerUuid = ''
     createBanForm.playerNickname = ''
     createBanForm.reason = ''
     createBanForm.duration = 'permanent'
@@ -278,13 +276,13 @@ watch(success, (val) => {
               </button>
             </div>
 
-            <!-- UUID игрока -->
+            <!-- Ник игрока -->
             <div>
-              <label class="block text-sm text-gray-400 mb-2">UUID игрока <span class="text-red-500">*</span></label>
+              <label class="block text-sm text-gray-400 mb-2">Ник игрока <span class="text-red-500">*</span></label>
               <input
-                  v-model="createBanForm.playerUuid"
+                  v-model="createBanForm.playerNickname"
                   type="text"
-                  placeholder="Например: 550e8400e29b41d4a716446655440000"
+                  placeholder="Например: Steve"
                   class="w-full bg-gray-800/70 rounded-md px-4 py-3 outline-none focus:ring-2 focus:ring-red-500 transition text-sm text-white placeholder-gray-500"
               />
             </div>
