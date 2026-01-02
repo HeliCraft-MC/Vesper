@@ -12,13 +12,15 @@ definePageMeta({
 /* ---------- refs & state ---------- */
 const router        = useRouter()
 const { signIn }    = useAuth()
+const { $fetch }    = useNuxtApp()
 
 const form          = reactive({ nickname: '', password: '' })
 const loading       = ref(false)
 const errorMsg      = ref('')
-const isPulsing = ref(false)
+const isPulsing     = ref(false)
+const isRegistering = ref(false) // Режим регистрации/входа
 
-/* ——— согласие ——— */
+/* ——— согласие на сбор данных ——— */
 const consentCookie = useCookie<boolean>('heli-consent', { default: () => false })
 const showConsent   = ref(false)
 const agreeData     = ref(false)
@@ -27,6 +29,17 @@ const canContinue   = computed(() => agreeData.value && agreeAge.value)
 const showError     = ref(false)
 const agreeDataLabel = ref<HTMLElement | null>(null)
 const agreeAgeLabel  = ref<HTMLElement | null>(null)
+
+/* ——— согласие на правила ——— */
+const showRulesConsent   = ref(false)
+const agreeRules         = ref(false)
+const agreePrivacy       = ref(false)
+const agreeNoMulti       = ref(false)
+const canAgreeRules      = computed(() => agreeRules.value && agreePrivacy.value && agreeNoMulti.value)
+const showRulesError     = ref(false)
+const agreeRulesLabel    = ref<HTMLElement | null>(null)
+const agreePrivacyLabel  = ref<HTMLElement | null>(null)
+const agreeNoMultiLabel  = ref<HTMLElement | null>(null)
 
 
 /* ——— turnstile ——— */
@@ -39,8 +52,9 @@ if(!consentCookie.value) {
 }
 
 /* ---------- блокировка скролла фона ---------- */
-watch(showConsent, open => {
-  document.body.style.overflow = open ? 'hidden' : ''
+watch([showConsent, showRulesConsent], open => {
+  const isOpen = open[0] || open[1]
+  document.body.style.overflow = isOpen ? 'hidden' : ''
 })
 onBeforeUnmount(() => {
   document.body.style.overflow = ''
@@ -48,10 +62,15 @@ onBeforeUnmount(() => {
 
 
 
-/* ---------- login ---------- */
+/* ---------- login/register ---------- */
 async function handleLogin () {
-  // 1) Не начинаем, пока не принято согласие
+  // 1) Не начинаем, пока не принято согласие на данные
   if (showConsent.value) {
+    return
+  }
+
+  // 2) Для регистрации требуется также согласие на правила
+  if (isRegistering.value && showRulesConsent.value) {
     return
   }
 
@@ -67,22 +86,20 @@ async function handleLogin () {
     return
   }
 
-  // 2) Проверка наличия CAPTCHA-токена
+  // 3) Проверка наличия CAPTCHA-токена
   if (!captchaToken.value) {
     errorMsg.value = 'Пожалуйста, подтвердите, что вы не робот'
     loading.value = false
     return
   }
 
-
-
-  // 3) Верификация токена на сервере
+  // 4) Верификация токена на сервере
   try {
-    const { success } = await $fetch('/_turnstile/validate', {
+    const response = await $fetch<{ success: boolean }>('/_turnstile/validate', {
       method: 'POST',
       body: { token: captchaToken.value }
     })
-    if (!success) {
+    if (!response?.success) {
       throw new Error('Ошибка проверки CAPTCHA')
     }
   } catch (e: any) {
@@ -92,7 +109,41 @@ async function handleLogin () {
     return
   }
 
-  // 4) Попытка входа и редирект
+  try {
+    if (isRegistering.value) {
+      // Регистрация
+      await registerUser()
+    } else {
+      // Вход
+      await loginUser()
+    }
+  } catch (e: any) {
+    errorMsg.value = e.data?.data?.statusMessageRu || e.message || 'Ошибка. Попробуйте снова.'
+    turnstile.value?.reset()
+  } finally {
+    loading.value = false
+  }
+}
+
+async function registerUser() {
+  try {
+    await useApiFetch('/auth/register', {
+      method: 'POST',
+      body: { nickname: form.nickname, password: form.password }
+    })
+
+    // После регистрации автоматически входим
+    await signIn(
+        { nickname: form.nickname, password: form.password },
+        { redirect: false }
+    )
+    await router.push('/account')
+  } catch (e: any) {
+    throw e
+  }
+}
+
+async function loginUser() {
   try {
     await signIn(
         { nickname: form.nickname, password: form.password },
@@ -100,10 +151,7 @@ async function handleLogin () {
     )
     await router.push('/account')
   } catch (e: any) {
-    errorMsg.value = e.data.data.statusMessageRu || e.message || 'Ошибка входа. Проверьте никнейм и пароль.'
-    turnstile.value?.reset()
-  } finally {
-    loading.value = false
+    throw e
   }
 }
 
@@ -128,9 +176,43 @@ async function acceptConsent() {
   }
   consentCookie.value = true
   showConsent.value = false
+
+  // Если это регистрация, показываем окно согласия на правила
+  if (isRegistering.value) {
+    showRulesConsent.value = true
+  }
 }
 
+/* ---------- согласие на правила ---------- */
+async function acceptRulesConsent() {
+  if (isPulsing.value) return
+  if (!canAgreeRules.value) {
+    showRulesError.value = true
+    isPulsing.value = true
+    setTimeout(() => { showRulesError.value = false; isPulsing.value=false }, 1500)
 
+    await nextTick()
+
+    // Прокрутка к первому невыбранному чекбоксу
+    if (!agreeRules.value) {
+      agreeRulesLabel.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    } else if (!agreePrivacy.value) {
+      agreePrivacyLabel.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    } else if (!agreeNoMulti.value) {
+      agreeNoMultiLabel.value?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+    return
+  }
+  showRulesConsent.value = false
+}
+
+function declineRulesConsent() {
+  isRegistering.value = false
+  showRulesConsent.value = false
+  agreeRules.value = false
+  agreePrivacy.value = false
+  agreeNoMulti.value = false
+}
 
 /* ---------- отказаться ---------- */
 function declineConsent () {
@@ -142,12 +224,16 @@ function declineConsent () {
 <template>
   <main class="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 py-24">
     <div class="w-full max-w-lg bg-gray-900/70 backdrop-blur-lg rounded-lg p-8 space-y-8">
-      <h1 class="text-center pr2p text-red-500 text-3xl">Вход в аккаунт</h1>
+      <h1 class="text-center pr2p text-red-500 text-3xl">{{ isRegistering ? 'Регистрация' : 'Вход в аккаунт' }}</h1>
 
-      <p class="text-gray-300 text-sm leading-relaxed">
+      <p v-if="!isRegistering" class="text-gray-300 text-sm leading-relaxed">
         Сначала <strong>зайдите на сервер</strong> и зарегистрируйтесь командой
         <code class="bg-gray-800 px-2 py-1 rounded text-red-400">/reg &lt;пароль&gt; &lt;пароль&gt;</code>.
         После этого вы сможете войти здесь.
+      </p>
+
+      <p v-if="isRegistering" class="text-gray-300 text-sm leading-relaxed">
+        Создайте аккаунт для доступа в личный кабинет. Используйте 3-16 символов для никнейма.
       </p>
 
       <form @submit.prevent="handleLogin" class="space-y-4">
@@ -176,7 +262,15 @@ function declineConsent () {
             :disabled="loading || showConsent"
             class="w-full bg-red-500 hover:bg-red-600 transition-all rounded-md py-3 font-bold text-black disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {{ loading ? 'Вхожу…' : 'Войти' }}
+          {{ loading ? (isRegistering ? 'Регистрирую…' : 'Вхожу…') : (isRegistering ? 'Зарегистрироваться' : 'Войти') }}
+        </button>
+
+        <button
+            type="button"
+            @click="isRegistering = !isRegistering"
+            class="w-full bg-gray-800 hover:bg-gray-700 transition-all rounded-md py-2 text-gray-300 text-sm"
+        >
+          {{ isRegistering ? 'Уже есть аккаунт? Войти' : 'Нет аккаунта? Зарегистрироваться' }}
         </button>
 
         <p v-if="errorMsg" class="text-red-400 text-center">{{ errorMsg }}</p>
@@ -241,6 +335,83 @@ function declineConsent () {
             </button>
             <button
                 @click="declineConsent"
+                class="flex-1 bg-gray-700 hover:bg-gray-600 transition-colors py-3 rounded-md text-white"
+            >
+              Отказаться
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ---------- модал согласия на правила ---------- -->
+    <Transition name="fade">
+      <div
+          v-if="showRulesConsent"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
+      >
+        <div class="w-full max-w-md bg-gray-900 rounded-lg p-6 sm:p-8 space-y-6 shadow-xl overflow-hidden">
+          <h2 class="pr2p text-red-500 text-2xl text-center">Правила сервера</h2>
+
+          <div class="text-gray-300 text-sm space-y-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+            <p class="font-bold text-red-400">⚠️ Важно:</p>
+            <p>
+              Создавая аккаунт, вы подтверждаете, что:
+            </p>
+            <ul class="list-disc pl-5 space-y-2">
+              <li>
+                <strong>Будете соблюдать правила</strong> сервера. Нарушение может привести к бану.
+              </li>
+              <li>
+                <strong>Не будете создавать</strong> несколько аккаунтов для обхода ограничений.
+                Мультиаккаунты строго запрещены и приведут к перманентному бану всех аккаунтов.
+              </li>
+              <li>
+                <strong>Ознакомились</strong> с полной политикой конфиденциальности нашего сервиса.
+              </li>
+            </ul>
+
+            <label
+                ref="agreeRulesLabel"
+                class="flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-800/50"
+                :class="{ 'animate-pulse-red': !agreeRules && showRulesError }"
+            >
+              <input v-model="agreeRules" type="checkbox" class="custom-checkbox" />
+              <span>Я согласен(на) соблюдать правила сервера</span>
+            </label>
+
+            <label
+                ref="agreePrivacyLabel"
+                class="flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-800/50"
+                :class="{ 'animate-pulse-red': !agreePrivacy && showRulesError }"
+            >
+              <input v-model="agreePrivacy" type="checkbox" class="custom-checkbox" />
+              <span>
+                Я прочитал(а) и согласен(на) с
+                <NuxtLink to="/privacy" target="_blank" class="underline hover:text-red-400">политикой конфиденциальности</NuxtLink>
+              </span>
+            </label>
+
+            <label
+                ref="agreeNoMultiLabel"
+                class="flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors hover:bg-gray-800/50"
+                :class="{ 'animate-pulse-red': !agreeNoMulti && showRulesError }"
+            >
+              <input v-model="agreeNoMulti" type="checkbox" class="custom-checkbox" />
+              <span>Я понимаю, что мультиаккаунты запрещены и приведут к перманентному бану</span>
+            </label>
+          </div>
+
+          <div class="flex flex-col sm:flex-row justify-between gap-4">
+            <button
+                @click="acceptRulesConsent"
+                class="flex-1 bg-red-500 hover:bg-red-600 transition-all py-3 rounded-md text-black font-bold"
+                :class=" {'cursor-not-allowed opacity-50': !canAgreeRules} "
+            >
+              Принять и продолжить
+            </button>
+            <button
+                @click="declineRulesConsent"
                 class="flex-1 bg-gray-700 hover:bg-gray-600 transition-colors py-3 rounded-md text-white"
             >
               Отказаться

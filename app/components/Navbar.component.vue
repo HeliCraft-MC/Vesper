@@ -36,6 +36,15 @@
             <span class="truncate">Правила сервера</span>
           </NuxtLink>
         </li>
+        <li>
+          <NuxtLink
+              to="/download"
+              class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
+          >
+            <Icon name="solar:download-bold-duotone" class="w-5 h-5" />
+            <span class="truncate">Скачать</span>
+          </NuxtLink>
+        </li>
         <li v-if="!isStatesDisabled">
           <NuxtLink
               to="/states"
@@ -121,6 +130,16 @@
             >
               <Icon name="solar:sledgehammer-bold-duotone" class="w-5 h-5" />
               <span class="truncate">Правила сервера</span>
+            </NuxtLink>
+          </li>
+          <li>
+            <NuxtLink
+                to="/download"
+                class="flex items-center gap-2 pr2p text-gray-200 hover:text-red-400 transition"
+                @click="closeMobileMenu"
+            >
+              <Icon name="solar:download-bold-duotone" class="w-5 h-5" />
+              <span class="truncate">Скачать лаунчер</span>
             </NuxtLink>
           </li>
           <li v-if="!isStatesDisabled">
