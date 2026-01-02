@@ -31,6 +31,7 @@ const isAdmin = ref(false)
 const checkingAdmin = ref(false)
 
 const banlistData = ref<IBanListResponse>({ items: [], total: 0 })
+const adminPanelRef = ref<InstanceType<typeof AdminCleanSkinsPanel> | null>(null)
 
 /* ───── Вычисляемые значения для пагинации ───── */
 const currentPage = computed(() => Math.floor(offset.value / limit.value) + 1)
@@ -123,6 +124,19 @@ async function checkAdminStatus() {
     checkingAdmin.value = false
   }
 }
+
+/* ───── Обработка снятия бана из таблицы ───── */
+function handleRemoveBan(banId: number, banNickname: string) {
+  if (adminPanelRef.value) {
+    adminPanelRef.value.openRemoveBanModal(banId, banNickname)
+  }
+}
+
+/* ───── Обработка события банRemoved ───── */
+function handleBanRemoved(banId: number) {
+  // Перезагружаем список банов
+  loadBanlist()
+}
 </script>
 
 <template>
@@ -200,11 +214,21 @@ async function checkAdminStatus() {
 
       <!-- Таблица -->
       <section class="bg-gray-900/60 backdrop-blur-lg rounded-lg overflow-hidden">
-        <BanlistTable :bans="banlistData.items" :loading="loading" />
+        <BanlistTable
+          :bans="banlistData.items"
+          :loading="loading"
+          :is-admin="isAdmin"
+          @removeBan="handleRemoveBan"
+        />
       </section>
 
       <!-- Панель администратора -->
-      <AdminCleanSkinsPanel v-if="isAdmin && !checkingAdmin" :is-admin="isAdmin" />
+      <AdminCleanSkinsPanel
+        v-if="isAdmin && !checkingAdmin"
+        ref="adminPanelRef"
+        :is-admin="isAdmin"
+        @banRemoved="handleBanRemoved"
+      />
 
       <!-- Пагинация -->
       <nav v-if="!loading && totalPages > 1" class="flex items-center justify-between">

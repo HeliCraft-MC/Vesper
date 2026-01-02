@@ -7,6 +7,11 @@ import { getBanStatus } from '~/utils/banlist.utils'
 const props = defineProps<{
   bans: IBan[]
   loading?: boolean
+  isAdmin?: boolean
+}>()
+
+const emit = defineEmits<{
+  removeBan: [banId: number, banNickname: string]
 }>()
 
 const { formatTime } = useTimeFormat()
@@ -44,11 +49,12 @@ function formatRemovedDate(date: string | null): string {
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Истекает</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Снят кем</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Статус</th>
+          <th v-if="isAdmin" class="px-4 py-3 text-left text-sm font-semibold text-gray-400">Действия</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="loading" class="border-b border-gray-800/60">
-          <td colspan="7" class="px-4 py-8 text-center text-gray-400">
+          <td :colspan="isAdmin ? 8 : 7" class="px-4 py-8 text-center text-gray-400">
             <div class="flex justify-center items-center gap-3">
               <div class="w-6 h-6 border-4 border-gray-600 border-t-red-500 rounded-full animate-spin"></div>
               <span>Загрузка...</span>
@@ -56,7 +62,7 @@ function formatRemovedDate(date: string | null): string {
           </td>
         </tr>
         <tr v-else-if="!bans.length" class="border-b border-gray-800/60">
-          <td colspan="7" class="px-4 py-8 text-center text-gray-400">
+          <td :colspan="isAdmin ? 8 : 7" class="px-4 py-8 text-center text-gray-400">
             Банов не найдено
           </td>
         </tr>
@@ -124,6 +130,19 @@ function formatRemovedDate(date: string | null): string {
             >
               <span>{{ getBanStatus(ban).text }}</span>
             </div>
+          </td>
+
+          <!-- Действия (только для админов) -->
+          <td v-if="isAdmin" class="px-4 py-3">
+            <button
+                v-if="getBanStatus(ban).isActive"
+                @click="emit('removeBan', ban.id, getPlayerNickname(ban))"
+                class="px-3 py-1 bg-red-600 hover:bg-red-700 transition rounded text-white text-sm font-medium flex items-center gap-1"
+                title="Снять бан"
+            >
+              <Icon name="solar:trash-bin-2-linear" class="w-4 h-4" />
+              <span class="hidden sm:inline">Снять</span>
+            </button>
           </td>
         </tr>
       </tbody>

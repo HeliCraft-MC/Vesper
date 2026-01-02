@@ -21,6 +21,9 @@ export interface IBan {
     /** Имя того, кто снял бан (null если активен или истёк) */
     removed_by_name: string | null;
 
+    /** UUID того, кто снял бан (null если активен или истёк) */
+    removed_by_uuid: string | null;
+
     /** Причина снятия бана (null если активен) */
     removed_by_reason: string | null;
 

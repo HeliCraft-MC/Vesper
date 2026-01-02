@@ -1,4 +1,4 @@
-еляват<!-- components/banlist/AdminBanPanel.vue -->
+<!-- components/banlist/AdminBanPanel.vue -->
 <script setup lang="ts">
 const props = defineProps<{
   playerUuid: string

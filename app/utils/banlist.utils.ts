@@ -24,15 +24,23 @@ export interface BanStatus {
  */
 export function getBanStatus(ban: IBan): BanStatus {
   const activeValue = readBanField(ban.active);
+  const now = Date.now()
 
-  // Проверяем, снят ли бан вручную (active = 0 И есть removed_by_uuid)
+  // Бан снят вручную (есть removed_by_uuid или removed_by_name не #expired)
   if (activeValue === 0 && ban.removed_by_uuid) {
-    let reason = 'Снят администратором'
-
-    // Проверяем специальные причины снятия
+    // Проверяем, был ли бан снят автоматически (#expired) или вручную
     if (ban.removed_by_name === '#expired') {
-      reason = 'Автоматически истёк'
-    } else if (
+      return {
+        status: 'expired',
+        text: 'Истёк',
+        color: 'text-gray-400',
+        isActive: false,
+        reason: 'Автоматически истёк'
+      }
+    }
+
+    let reason = 'Снят администратором'
+    if (
       ban.removed_by_name === '[Console]' ||
       ban.removed_by_name === 'Console' ||
       ban.removed_by_name === 'CONSOLE'
@@ -42,15 +50,15 @@ export function getBanStatus(ban: IBan): BanStatus {
 
     return {
       status: 'removed',
-      text: `Снят${ban.removed_by_date ? ` ${new Date(ban.removed_by_date).toLocaleDateString('ru-RU')}` : ''}`,
-      color: 'text-gray-500',
+      text: 'Снят',
+      color: 'text-blue-400',
       isActive: false,
       reason
     }
   }
 
-  // Перманентный бан (until = 0 или until = -1)
-  if (ban.until === 0 || ban.until === -1) {
+  // Перманентный бан (until = 0 или until = -1) и активен
+  if ((ban.until === 0 || ban.until === -1) && activeValue === 1) {
     return {
       status: 'permanent',
       text: 'Перманентный',
@@ -59,22 +67,31 @@ export function getBanStatus(ban: IBan): BanStatus {
     }
   }
 
-  // Активный бан (until > now)
-  const now = Date.now()
-  if (ban.until > now) {
+  // Активный бан (until > now и active = 1)
+  if (ban.until > now && activeValue === 1) {
     return {
       status: 'active',
-      text: 'Активен',
+      text: 'Активный',
       color: 'text-yellow-500',
       isActive: true
     }
   }
 
-  // Истёкший бан (until <= now и active = 0 но без removed_by_uuid)
+  // Истёкший бан по времени (until <= now, но не снят вручную)
+  if (ban.until > 0 && ban.until <= now) {
+    return {
+      status: 'expired',
+      text: 'Истёк',
+      color: 'text-gray-400',
+      isActive: false
+    }
+  }
+
+  // Если ничего не подошло, считаем что бан неактивен
   return {
     status: 'expired',
-    text: 'Истёк',
-    color: 'text-green-500',
+    text: 'Неактивен',
+    color: 'text-gray-500',
     isActive: false
   }
 }
