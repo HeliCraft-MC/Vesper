@@ -54,6 +54,9 @@ export default defineNuxtConfig({
     mode: 'css',
     cssLayer: 'base'
   },
+  fonts: {
+    provider: "google",
+  },
   nitro: {
     routeRules: {
       '/distant-api/**': { proxy: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'https://api.helicraft.ru'}/**` },
