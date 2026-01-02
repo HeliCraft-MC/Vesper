@@ -12,7 +12,6 @@ definePageMeta({
 /* ---------- refs & state ---------- */
 const router        = useRouter()
 const { signIn }    = useAuth()
-const { $fetch }    = useNuxtApp()
 
 const form          = reactive({ nickname: '', password: '' })
 const loading       = ref(false)
@@ -95,10 +94,12 @@ async function handleLogin () {
 
   // 4) Верификация токена на сервере
   try {
-    const response = await $fetch<{ success: boolean }>('/_turnstile/validate', {
+    const { data } = await useFetch('/_turnstile/validate', {
       method: 'POST',
       body: { token: captchaToken.value }
     })
+
+    const response = data.value as { success: boolean } | null
     if (!response?.success) {
       throw new Error('Ошибка проверки CAPTCHA')
     }
@@ -127,7 +128,7 @@ async function handleLogin () {
 
 async function registerUser() {
   try {
-    await useApiFetch('/auth/register', {
+    const { data } = await useApiFetch('/auth/register', {
       method: 'POST',
       body: { nickname: form.nickname, password: form.password }
     })
