@@ -1,12 +1,25 @@
+<script setup lang="ts">
+
+const eventBus = useAppEventBus();
+
+const hideHeaderAndFooter = ref(false);
+
+eventBus.on("showHeaderAndFooter", () => {
+  hideHeaderAndFooter.value = false;
+});
+
+eventBus.on("hideHeaderAndFooter", () => {
+  hideHeaderAndFooter.value = true;
+});
+
+</script>
 <template>
-  <NavbarComponent />
+  <NavbarComponent v-if="!hideHeaderAndFooter" />
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
-  <FooterComponent />
+  <FooterComponent v-if="!hideHeaderAndFooter" />
 </template>
-<script setup lang="ts">
-</script>
 <style>
 .pr2p{
   font-family: "Press Start 2P", system-ui;
