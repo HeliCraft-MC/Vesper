@@ -31,6 +31,9 @@ const selectedSeason = ref('')
 const perPage = ref(20)
 const currentPage = ref(1)
 
+// Constants
+const MAX_VISIBLE_PAGES = 5
+
 // Modal
 const showUploadModal = ref(false)
 
@@ -228,7 +231,7 @@ onMounted(() => {
 
           <div class="flex items-center gap-1">
             <button
-              v-for="page in Math.min(5, galleryData.totalPages)"
+              v-for="page in Math.min(MAX_VISIBLE_PAGES, galleryData.totalPages)"
               :key="page"
               @click="goToPage(page)"
               class="px-4 py-2 rounded-md transition"
@@ -236,9 +239,9 @@ onMounted(() => {
             >
               {{ page }}
             </button>
-            <span v-if="galleryData.totalPages > 5" class="px-2 text-gray-500">...</span>
+            <span v-if="galleryData.totalPages > MAX_VISIBLE_PAGES" class="px-2 text-gray-500">...</span>
             <button
-              v-if="galleryData.totalPages > 5"
+              v-if="galleryData.totalPages > MAX_VISIBLE_PAGES"
               @click="goToPage(galleryData.totalPages)"
               class="px-4 py-2 rounded-md transition"
               :class="currentPage === galleryData.totalPages ? 'bg-red-500 text-black font-bold' : 'bg-gray-800 hover:bg-gray-700'"

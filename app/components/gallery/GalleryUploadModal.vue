@@ -21,8 +21,10 @@ const isUploading = ref(false)
 const error = ref('')
 const dragOver = ref(false)
 
-const maxFileSize = 10 * 1024 * 1024 // 10MB
-const allowedTypes = ['image/png', 'image/jpeg', 'image/webp']
+// Upload constraints
+const MAX_FILE_SIZE_MB = 10
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 
 function handleFileSelect(event: Event) {
   const input = event.target as HTMLInputElement
@@ -43,13 +45,13 @@ function handleDrop(event: DragEvent) {
 function validateAndSetFile(file: File) {
   error.value = ''
   
-  if (!allowedTypes.includes(file.type)) {
+  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
     error.value = 'Поддерживаются только форматы PNG, JPEG и WebP'
     return
   }
   
-  if (file.size > maxFileSize) {
-    error.value = 'Максимальный размер файла — 10 МБ'
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    error.value = `Максимальный размер файла — ${MAX_FILE_SIZE_MB} МБ`
     return
   }
   

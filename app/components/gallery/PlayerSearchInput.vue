@@ -47,9 +47,9 @@ async function searchPlayers() {
 
 function onSearchInput() {
   clearTimeout(searchTimeout)
-  searchTimeout = window.setTimeout(() => {
+  searchTimeout = setTimeout(() => {
     searchPlayers()
-  }, 300)
+  }, 300) as unknown as number
 }
 
 function addPlayer(player: IPlayerSearchResult) {
