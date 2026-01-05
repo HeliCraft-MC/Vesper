@@ -1,19 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
-function removeStatesRoutes(pages: any) {
-  for (let i = pages.length - 1; i >= 0; i--) {
-    const page = pages[i]
-
-    if (page.children?.length) {
-      removeStatesRoutes(page.children)
-    }
-
-    if (page.path === '/states' || page.path.startsWith('/states/')) {
-      pages.splice(i, 1)
-    }
-  }
-}
-
 export default defineNuxtConfig({
 
     app: {
@@ -68,14 +54,10 @@ export default defineNuxtConfig({
       secretKey: process.env.NUXT_TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA',
     },
   },
+
   // DISABLE /states ROUTES
-  hooks: {
-    'pages:extend'(pages) {
-      if (process.env.VESPER_DISABLE_STATE_LOGIC ? process.env.VESPER_DISABLE_STATE_LOGIC === 'true' : true) {
-        removeStatesRoutes(pages)
-      }
-    },
-  },
+  // ^^^ moved to nitro middleware
+
   icon: {
     mode: 'css',
     cssLayer: 'base'
@@ -87,6 +69,16 @@ export default defineNuxtConfig({
     routeRules: {
       '/distant-api/**': { proxy: `${process.env.NUXT_PUBLIC_BACKEND_URL || 'https://api.helicraft.ru'}/**` },
       '/plan-api/**': { proxy: `${process.env.NUXT_PUBLIC_PLAN_API_URL || 'https://analytics.helicraft.ru'}/**` }
+    },
+    preset: "bun",
+    externals: {
+      inline: ['vue', 'vue-router', '@vue/server-renderer', 'sharp']
+    },
+
+    // TODO: убрать это после обновления на nuxt >4.2.2(4.2.3, и выше).
+    //  Фикс из: https://github.com/nuxt/nuxt/issues/33748
+    devProxy: {
+      '/sw.js': { target: '/sw.js' }
     }
   },
   turnstile: {
