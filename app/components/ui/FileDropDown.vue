@@ -11,13 +11,19 @@ const $emit = defineEmits<{
   onRemove: [];
 }>();
 
+const eventBus = useAppEventBus()
+
 const isDragging = ref(false);
 const chosenFile = ref<File | null>(null);
 const previewLink = ref<string | null>(null); // blob from file
-const error = ref('');
 
-function onSelect(selectedFile: File) {
-  error.value = '';
+async function showError(error: string) {
+  eventBus.emit('show-error', {
+    message: error
+  })
+}
+
+async function onSelect(selectedFile: File) {
   if(previewLink.value)
     revokeFileUrl(previewLink.value);
   previewLink.value = null;
@@ -29,7 +35,7 @@ function onSelect(selectedFile: File) {
   const isValidType = fileTypes.includes(selectedFile.type);
   console.log(isValidType);
   if (!isValidType) {
-    error.value = 'Файл должен быть в формате PNG.'
+    await showError('Неверный формат файла.');
     return
   }
 
@@ -39,7 +45,7 @@ function onSelect(selectedFile: File) {
   $emit('onSelect', chosenFile.value, previewLink.value);
 }
 
-function onRemove() {
+async function onRemove() {
   chosenFile.value = null;
   if(previewLink.value)
     revokeFileUrl(previewLink.value);
@@ -48,37 +54,40 @@ function onRemove() {
   $emit('onRemove');
 }
 
-function onSelectFileInInput(e: Event) {
+async function onSelectFileInInput(e: Event) {
   const target = e.target as HTMLInputElement;
   if (!target.files || target.files.length === 0) return;
 
-  onSelect(target.files[0]!);
+  await onSelect(target.files[0]!);
 
   // Обнуляем инпут
   target.value = '';
 }
 
-function dropDownDragOver(e: DragEvent) {
+async function dropDownDragOver(e: DragEvent) {
   if(chosenFile.value !== null)
     return;
 
   e.preventDefault();
   isDragging.value = true;
 }
-function dropDownDragLeave() {
+async function dropDownDragLeave() {
   isDragging.value = false;
 }
-function dropDownDrop(e: DragEvent) {
+async function dropDownDrop(e: DragEvent) {
   if(chosenFile.value !== null)
     return;
 
   e.preventDefault();
   if(!e.dataTransfer)
     return;
-  if(e.dataTransfer.files.length !== 1)
+  if(e.dataTransfer.files.length !== 1) {
+    await showError("Перетащите только один файл");
+    await dropDownDragLeave();
     return;
+  }
 
-  onSelect(e.dataTransfer.files.item(0)!);
+  await onSelect(e.dataTransfer.files.item(0)!);
   isDragging.value = false;
 }
 
