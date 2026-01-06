@@ -16,7 +16,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-black text-white flex flex-col items-center justify-start relative">
+  <div class="min-h-[100dvh] bg-black text-white flex flex-col items-center justify-start relative">
     <!--  <h1 class="font-extrabold text-red-500 mb-4 text-2xl">Карта сервера</h1>-->
     <iframe
         allow="fullscreen"
