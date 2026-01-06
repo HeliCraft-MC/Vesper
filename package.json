@@ -37,11 +37,6 @@
     "@pinia/nuxt": "^0.11.3",
     "@sidebase/nuxt-auth": "^1.1.1"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "sharp"
-    ]
-  },
   "trustedDependencies": [
     "sharp",
     "better-sqlite3"

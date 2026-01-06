@@ -19,7 +19,7 @@ export default defineNuxtConfig({
         }
     },
 
-  compatibilityDate: '2025-05-15',
+  compatibilityDate: '2026-01-06',
   devtools: {
     enabled: true,
 
@@ -82,7 +82,7 @@ export default defineNuxtConfig({
     }
   },
   turnstile: {
-    siteKey: process.env.NUXT_TURNSTILE_SITEKEY || '1x00000000000000000000AA',
+    siteKey: process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY || '1x00000000000000000000AA',
     addValidateEndpoint: true
   },
   auth: {

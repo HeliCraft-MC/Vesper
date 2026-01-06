@@ -18,6 +18,13 @@ ARG NODE_COMMIT=unknown
 ENV NODE_COMMIT=${NODE_COMMIT}
 ENV NODE_ENV=production
 
+# api urls
+ARG NUXT_PUBLIC_BACKEND_URL="https://api.helicraft.ru"
+ARG NUXT_PLAN_UPSTREAM_URL="https://analytics.helicraft.ru"
+
+ENV NUXT_PUBLIC_BACKEND_URL=${NUXT_PUBLIC_BACKEND_URL}
+ENV NUXT_PLAN_UPSTREAM_URL=${NUXT_PLAN_UPSTREAM_URL}
+
 # Run the build script
 RUN bun --bun run build
 

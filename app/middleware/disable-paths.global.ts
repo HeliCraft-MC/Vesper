@@ -1,8 +1,8 @@
 export default defineNuxtRouteMiddleware((to) => {
+    const nuxtApp = useNuxtApp()
     const disabledPaths = []
-    if (
-        process.env.VESPER_DISABLE_STATE_LOGIC
-            ? process.env.VESPER_DISABLE_STATE_LOGIC === 'true' : true)
+
+    if (nuxtApp.$config.public.statesDisabled)
         disabledPaths.push("/states");
 
     if (disabledPaths.some(p => to.path.startsWith(p))) {
