@@ -99,9 +99,9 @@
         <li v-else>
           <NuxtLink
               to="/login"
-              class="font-bold pr2p text-gray-200 hover:text-red-400 transition"
+              class="flex items-center gap-1 font-bold pr2p text-gray-200 hover:text-red-400 transition"
           >
-            Войти
+            <span class="truncate">Войти</span>
           </NuxtLink>
         </li>
       </ul>
