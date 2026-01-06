@@ -46,7 +46,7 @@ export default defineNuxtConfig({
       planApiURL: '/plan-api',
       statesDisabled: process.env.VESPER_DISABLE_STATE_LOGIC ? process.env.VESPER_DISABLE_STATE_LOGIC === 'true' : true,
       banlistEnabled: process.env.NUXT_PUBLIC_BANLIST_ENABLED !== 'false',
-      vesperCommit: process.env.NODE_COMMIT || 'unknown', //frontend software commit
+      vesperCommit: process.env.NUXT_PUBLIC_VESPER_COMMIT || 'unknown', //frontend software commit
     },
     turnstile: {
       // This can be overridden at runtime via the NUXT_TURNSTILE_SECRET_KEY

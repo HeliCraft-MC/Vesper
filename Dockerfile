@@ -13,9 +13,10 @@ RUN bun install --frozen-lockfile --ignore-scripts
 COPY . .
 
 # Build the application
-# We accept NODE_COMMIT as a build argument to pass the git hash
-ARG NODE_COMMIT=unknown
-ENV NODE_COMMIT=${NODE_COMMIT}
+# We accept NUXT_PUBLIC_VESPER_COMMIT as a build argument to pass the git hash
+ARG NUXT_PUBLIC_VESPER_COMMIT=unknown
+ENV NUXT_PUBLIC_VESPER_COMMIT=${NUXT_PUBLIC_VESPER_COMMIT}
+
 ENV NODE_ENV=production
 
 # api urls
