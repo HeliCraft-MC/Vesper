@@ -69,3 +69,6 @@ dist
 
 # Git
 .git
+
+# Public assets that are not needed for build (if they are large)
+# public/introImg

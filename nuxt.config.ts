@@ -75,13 +75,32 @@ export default defineNuxtConfig({
       inline: ['vue', 'vue-router', '@vue/server-renderer', 'sharp']
     },
 
-    // Fix from https://github.com/nuxt/bridge/issues/582#issuecomment-1609154745
-    sourceMap: false,
-
     // TODO: убрать это после обновления на nuxt >4.2.2(4.2.3, и выше).
     //  Фикс из: https://github.com/nuxt/nuxt/issues/33748
     devProxy: {
       '/sw.js': { target: '/sw.js' }
+    },
+    logLevel: 3,
+    debug: false
+  },
+  sourcemap: {
+    server: true,
+    client: false
+  },
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('lodash')) return 'vendor-lodash';
+              if (id.includes('chart.js')) return 'vendor-charts';
+              return 'vendor';
+            }
+          }
+        }
+      },
+      minify: 'esbuild',
     }
   },
   turnstile: {
