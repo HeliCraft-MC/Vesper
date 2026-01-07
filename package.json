@@ -3,12 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "NUXT_PUBLIC_VESPER_COMMIT=$(git rev-parse HEAD) bun --bun nuxt build",
-    "dev:build": "bun --bun nuxt build",
-    "dev": "bun --bun nuxt dev --port 3020",
-    "generate": "bun --bun nuxt generate",
+    "build": "NUXT_PUBLIC_VESPER_COMMIT=$(git rev-parse HEAD) NODE_OPTIONS='--max-old-space-size=4096' nuxt build",
+    "dev:build": "NODE_OPTIONS='--max-old-space-size=4096' nuxt build",
+    "dev": "nuxt dev --port 3020",
+    "generate": "nuxt generate",
     "preview": "bun --bun nuxt preview",
-    "postinstall": "bun --bun nuxt prepare",
+    "postinstall": "nuxt prepare",
     "start": "bun --bun nuxt start"
   },
   "dependencies": {
