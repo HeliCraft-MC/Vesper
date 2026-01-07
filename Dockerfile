@@ -27,9 +27,12 @@ ENV NUXT_PUBLIC_BACKEND_URL=${NUXT_PUBLIC_BACKEND_URL}
 ENV NUXT_PLAN_UPSTREAM_URL=${NUXT_PLAN_UPSTREAM_URL}
 
 # Run the build script
-RUN bun --bun run build
+# Use dev:build to avoid running git rev-parse inside the container (which fails without .git)
+RUN bun --bun nuxt build
 
-FROM oven/bun:1-alpine AS production
+# Use the same base image for production to ensure compatibility of native modules (glibc vs musl)
+# Switching from alpine to debian-based bun image avoids issues with sharp/better-sqlite3
+FROM oven/bun:1 AS production
 WORKDIR /app
 
 # Set environment variables

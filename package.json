@@ -3,13 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "NODE_COMMIT=$(git rev-parse HEAD) nuxt build",
-    "dev:build": "nuxt build",
-    "dev": "nuxt dev --port 3020",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "start": "nuxt start"
+    "build": "NUXT_PUBLIC_VESPER_COMMIT=$(git rev-parse HEAD) bun --bun nuxt build",
+    "dev:build": "bun --bun nuxt build",
+    "dev": "bun --bun nuxt dev --port 3020",
+    "generate": "bun --bun nuxt generate",
+    "preview": "bun --bun nuxt preview",
+    "postinstall": "bun --bun nuxt prepare",
+    "start": "bun --bun nuxt start"
   },
   "dependencies": {
     "@cafestube/minecraft-banner-renderer": "^1.0.4",
